@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-11-27T14:15:49.684Z",
         "reason": "User confirmed these two data-visualization bars intentionally animate height and width to represent live evaluation and WDL probabilities."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/styles.css"
+        ],
+        "createdAt": "2026-11-27T14:19:38.240Z",
+        "reason": "User requested a live stock-ticker refresh; this transient inset accent marks the row being updated and is not a card side-tab."
       }
     ]
   }
