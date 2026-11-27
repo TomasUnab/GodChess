@@ -722,7 +722,12 @@ td.answer .tag { margin-left: 8px; }
 .likeness-bars i { display: block; height: 8px; background: linear-gradient(90deg, var(--accent) calc(var(--v) * 100%), var(--rule-soft) 0); border: 1px solid var(--rule); }
 .likeness-line { font-size: 13.5px; color: var(--ink-2); }
 .likeness-line b { color: var(--ink); }
+.likeness-bars span, .likeness-line { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .likeness-bars li { grid-template-columns: 1fr; gap: 4px; } }
+@media (max-width: 600px) {
+ .clone-phases li { grid-template-columns: 1fr; gap: 3px; }
+ .clone-phases span { overflow-wrap: anywhere; }
+}
 
 .lost-table td.bad { color: var(--danger); font-weight: 700; }
 .lost-table td.good { color: var(--good); font-weight: 700; }

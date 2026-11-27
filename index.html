@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#161616" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://lichess.org https://api.chess.com https://*.peerjs.com wss://*.peerjs.com https://huggingface.co https://*.huggingface.co https://*.hf.co; media-src 'self' blob:;" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://lichess.org https://api.chess.com https://*.peerjs.com wss://*.peerjs.com https://huggingface.co https://*.huggingface.co https://*.hf.co; media-src 'self' blob:;" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <title>GodChess: entrenador de ajedrez personalizado</title>
 <meta name="description" content="Entrena ajedrez con tus propias partidas: Stockfish, puzzles de tus errores, aperturas, mates y un doble que aprende de ti." />
@@ -22,17 +22,7 @@
 {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://tomasunab.github.io/GodChess/#organization","name":"GodChess","url":"https://tomasunab.github.io/GodChess/","sameAs":["https://github.com/TomasUnab/GodChess"]},{"@type":"WebSite","@id":"https://tomasunab.github.io/GodChess/#website","url":"https://tomasunab.github.io/GodChess/","name":"GodChess","description":"Entrenador de ajedrez personalizado basado en tus propias partidas.","publisher":{"@id":"https://tomasunab.github.io/GodChess/#organization"}}]}
 </script>
     <!-- Remove the legacy COI worker: it used to intercept Supabase requests. -->
-    <script>
-      if (navigator.serviceWorker && !sessionStorage.getItem('godchess.sw-cleaned')) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          if (!registrations.length) return;
-          return Promise.all(registrations.map(registration => registration.unregister())).then(() => {
-            sessionStorage.setItem('godchess.sw-cleaned', '1');
-            return caches?.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))));
-          }).then(() => location.reload());
-        }).catch(() => undefined);
-      }
-    </script>
+    <script src="/sw-cleanup.js"></script>
   </head>
   <body>
     <div id="root"></div>
