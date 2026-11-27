@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, FileUp, Search, Trash2 } from 'lucide-react';
 import { useStore } from '../../app/store';
-import { catalogNumber, deleteGame, importPgn, listGames, migrateLegacyGames, type StoredGame } from '../../storage/games';
+import { catalogNumber, deleteGame, deleteGames, importPgn, listGames, migrateLegacyGames, type StoredGame } from '../../storage/games';
 import { PageHead, SubNav, Toast, useToast } from '../../ui/kit';
 import { StatsView } from './StatsView';
 import { OnlineImport } from '../play/OnlineImport';
@@ -34,6 +34,8 @@ function GamesBase() {
   const file = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const loadGame = useStore(s => s.loadGame);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [confirm, setConfirm] = useState<{ ids: number[]; label: string } | null>(null);
 
   const refresh = () => listGames().then(rows => { setGames(rows); setFailed(false); }).catch(() => { setGames([]); setFailed(true); });
   useEffect(() => { void migrateLegacyGames().finally(refresh); }, []);
@@ -59,6 +61,15 @@ function GamesBase() {
   };
   const importFiles = async (files: FileList | null) => { for (const chosen of Array.from(files ?? [])) await importText(await chosen.text(), chosen.name); };
 
+  const removeMany = async (ids: number[]) => {
+    await deleteGames(ids).catch(() => undefined);
+    setSelected(new Set()); setConfirm(null);
+    await refresh();
+    toast.show(`${ids.length} ${ids.length === 1 ? 'partida eliminada' : 'partidas eliminadas'}.`);
+  };
+  const toggle = (id: number) => setSelected(current => { const next = new Set(current); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+  const allFiltered = filtered.length > 0 && filtered.every(game => game.id !== undefined && selected.has(game.id));
+  const imported = (games ?? []).filter(game => game.source === 'import' && game.id !== undefined);
   const remove = async (game: StoredGame) => {
     if (!game.id) return;
     await deleteGame(game.id).catch(() => undefined);
@@ -99,6 +110,22 @@ function GamesBase() {
         <span className="filter-count">{games ? `${filtered.length.toLocaleString('es')} de ${games.length.toLocaleString('es')}` : 'Cargando…'}</span>
       </div>
 
+      {(selected.size > 0 || imported.length > 0) && !confirm && (
+        <div className="bulk-bar" role="toolbar" aria-label="Acciones sobre varias partidas">
+          {selected.size > 0 ? <>
+            <span><b>{selected.size}</b> {selected.size === 1 ? 'seleccionada' : 'seleccionadas'}</span>
+            <button className="secondary danger-outline" onClick={() => setConfirm({ ids: [...selected], label: `${selected.size} ${selected.size === 1 ? 'partida seleccionada' : 'partidas seleccionadas'}` })}><Trash2 size={15} /> Eliminar</button>
+            <button className="link" onClick={() => setSelected(new Set())}>Quitar selección</button>
+          </> : <button className="link" onClick={() => setConfirm({ ids: imported.map(game => game.id!), label: `todas las partidas importadas (${imported.length})` })}>Eliminar todas las importadas ({imported.length})</button>}
+        </div>
+      )}
+      {confirm && (
+        <div className="bulk-bar confirm" role="alertdialog" aria-label="Confirmar eliminación">
+          <span>¿Eliminar {confirm.label}? No se puede deshacer. Tus estadísticas y tu doble dejarán de contarlas cuando vuelvas a entrenarlo.</span>
+          <button className="primary danger-fill" onClick={() => void removeMany(confirm.ids)}>Sí, eliminar</button>
+          <button className="ghost" onClick={() => setConfirm(null)}>Cancelar</button>
+        </div>
+      )}
       {failed && <p className="form-error" role="alert">Este navegador no permite IndexedDB (¿modo privado?). Puedes seguir analizando partidas, pero no guardarlas.</p>}
 
       {games && games.length === 0 && !failed ? (
@@ -111,6 +138,7 @@ function GamesBase() {
           <table className="games-table">
             <thead>
               <tr>
+                <th className="check-col"><input type="checkbox" checked={allFiltered} aria-label={allFiltered ? 'Quitar la selección' : `Seleccionar las ${filtered.length} partidas filtradas`} title="Seleccionar todas las partidas filtradas (no solo esta página)" onChange={() => setSelected(allFiltered ? new Set() : new Set(filtered.map(game => game.id!).filter(id => id !== undefined)))} /></th>
                 {header('id', 'Nº', 'num')}
                 {header('white', 'Blancas')}
                 {header('black', 'Negras')}
@@ -124,9 +152,10 @@ function GamesBase() {
               </tr>
             </thead>
             <tbody>
-              {!games && Array.from({ length: 6 }, (_, index) => <tr key={index} className="skeleton-row"><td colSpan={10}><span /></td></tr>)}
+              {!games && Array.from({ length: 6 }, (_, index) => <tr key={index} className="skeleton-row"><td colSpan={11}><span /></td></tr>)}
               {rows.map(game => (
-                <tr key={game.id} onDoubleClick={() => loadGame(game.pgn, { gameId: game.id, at: 'start' })}>
+                <tr key={game.id} className={game.id !== undefined && selected.has(game.id) ? 'selected' : ''} onDoubleClick={() => loadGame(game.pgn, { gameId: game.id, at: 'start' })}>
+                  <td className="check-col"><input type="checkbox" checked={game.id !== undefined && selected.has(game.id)} onChange={() => game.id !== undefined && toggle(game.id)} aria-label={`Seleccionar partida ${catalogNumber(game.id)}`} /></td>
                   <td className="num cat">{String(game.id).padStart(4, '0')}</td>
                   <td><button className="cell-link" onClick={() => loadGame(game.pgn, { gameId: game.id, at: 'start' })}>{game.white}</button>{game.whiteElo && <small> {game.whiteElo}</small>}</td>
                   <td>{game.black}{game.blackElo && <small> {game.blackElo}</small>}</td>
@@ -139,7 +168,7 @@ function GamesBase() {
                   <td className="row-actions"><button className="icon danger" onClick={() => void remove(game)} aria-label={`Eliminar partida ${catalogNumber(game.id)}`} title="Eliminar"><Trash2 size={15} /></button></td>
                 </tr>
               ))}
-              {games && games.length > 0 && !filtered.length && <tr><td colSpan={10} className="no-match">Ninguna partida coincide con «{query}». Prueba con el apellido del jugador o el código ECO.</td></tr>}
+              {games && games.length > 0 && !filtered.length && <tr><td colSpan={11} className="no-match">Ninguna partida coincide con «{query}». Prueba con el apellido del jugador o el código ECO.</td></tr>}
             </tbody>
           </table>
         </div>

@@ -20,7 +20,7 @@ const ANALYSIS_KEY = 'godchess.analysis.v1';
 const PREFS_KEY = 'godchess.prefs.v1';
 
 export type BoardTheme = 'steel' | 'diagram' | 'wood' | 'green';
-type Prefs = { theme: Theme; board: BoardTheme; multipv: number; engineOn: boolean; figurines: boolean; xray: boolean; playerName: string };
+type Prefs = { boardScale?: number; focusMode?: boolean; theme: Theme; board: BoardTheme; multipv: number; engineOn: boolean; figurines: boolean; xray: boolean; playerName: string };
 const defaultPrefs: Prefs = { theme: 'night', board: 'steel', multipv: 3, engineOn: true, figurines: true, xray: false, playerName: '' };
 const parse = (pgn: string) => classifyFromEvals(parsePgn(pgn));
 function readJson<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : fallback; } catch { return fallback; } }

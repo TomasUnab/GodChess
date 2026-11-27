@@ -679,3 +679,37 @@ td.answer .tag { margin-left: 8px; }
   .job .scan-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .online-form .seg { justify-self: start; }
 }
+
+/* Bulk selection in Partidas */
+.check-col { width: 36px; }
+.check-col input { display: block; }
+.games-table tbody tr.selected td { background: var(--paper-2); }
+.bulk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--rule); }
+.bulk-bar.confirm { border-color: var(--danger); }
+.bulk-bar.confirm span { flex: 1 1 320px; color: var(--ink); }
+.danger-outline { color: var(--danger); border-color: var(--danger); }
+.primary.danger-fill { background: var(--danger); border-color: var(--danger); color: #0b0b0d; }
+.primary.danger-fill:hover:not(:disabled) { background: var(--danger); filter: brightness(1.1); }
+
+/* Play stage: board size, focus mode, full screen */
+.play-head { display: flex; align-items: flex-end; gap: 16px; border-bottom: 1px solid var(--rule); margin-bottom: 22px; }
+.play-head .subnav { border-bottom: 0; margin-bottom: 0; flex: 1; }
+.stage-tools { display: flex; align-items: center; gap: 4px; padding-bottom: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.stage-scale { min-width: 48px; text-align: center; font-size: 13.5px; font-weight: 700; color: var(--ink-2); }
+.stage-tools .ghost.on { color: var(--accent); border-color: var(--accent); }
+.play-stage { --board-scale: 1; }
+.play-stage { --stage-max: calc(100vh - var(--mast-h) - 150px); }
+.play-stage .work .board-frame, .play-stage .work .caption, .play-stage .work .clock-row, .play-stage .work .xray-key { width: min(calc(var(--board-sm) * var(--board-scale)), var(--stage-max)); }
+.play-stage.focus .work { grid-template-columns: auto; justify-content: center; }
+.play-stage.focus .work > :first-child { padding-right: 0; }
+.play-stage.focus .work > .side-panel { display: none; }
+.play-stage:fullscreen { max-width: none; overflow-y: auto; padding: 18px 28px 28px; background: var(--paper); --board-sm: min(calc(100vh - 170px), 70vw); --stage-max: calc(100vh - 150px); }
+.play-stage:fullscreen.focus { --board-sm: min(calc(100vh - 150px), 92vw); }
+.play-stage:fullscreen .work { justify-content: center; }
+.play-stage::backdrop { background: var(--paper); }
+@media (max-width: 900px) {
+  .play-head { flex-direction: column; align-items: stretch; gap: 6px; }
+  .stage-tools { justify-content: flex-start; }
+  .play-stage .work .board-frame, .play-stage .work .caption, .play-stage .work .clock-row { width: min(100%, calc(var(--board-sm) * var(--board-scale))); }
+  .play-stage { --stage-max: 100vw; }
+}

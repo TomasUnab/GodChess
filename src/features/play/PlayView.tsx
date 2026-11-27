@@ -6,6 +6,7 @@ import { xrayHighlights } from '../../chess/tactics';
 import { MIN_LEVEL, pickBotMove, STOCKFISH_FLOOR } from '../../chess/adaptiveBot';
 import { Flap } from '../../ui/Flap';
 import { CloneView } from './CloneView';
+import { StageTools } from './StageTools';
 import { XrayKey } from '../../ui/XrayKey';
 import { useStore } from '../../app/store';
 import { ChessgroundBoard } from '../../ui/ChessgroundBoard';
@@ -20,10 +21,14 @@ import { parsePgn } from '../../chess/pgn';
 import { today } from '../../chess/tree';
 
 export function PlayView() {
-  const { playSection, setPlay } = useStore();
+  const { playSection, setPlay, prefs } = useStore();
+  const stage = useRef<HTMLDivElement>(null);
   return (
-    <div className="page play">
-      <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'invite', label: 'Invitar a alguien' }]} />
+    <div ref={stage} className={`page play play-stage ${prefs.focusMode ? 'focus' : ''}`}>
+      <div className="play-head">
+        <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'invite', label: 'Invitar a alguien' }]} />
+        <StageTools stage={stage} />
+      </div>
       {playSection === 'engine' ? <EngineGame /> : playSection === 'clone' ? <CloneView /> : <InviteGame />}
     </div>
   );

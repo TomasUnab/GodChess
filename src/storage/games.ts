@@ -96,3 +96,6 @@ export async function migrateLegacyGames() {
 }
 
 export const catalogNumber = (id?: number) => `nº ${String(id ?? 0).padStart(4, '0')}`;
+
+/** Deletes many games in one transaction. */
+export const deleteGames = (ids: number[]) => run<undefined>('readwrite', store => { ids.forEach(id => store.delete(id)); });
