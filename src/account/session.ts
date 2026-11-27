@@ -29,11 +29,14 @@ export function authMessage(message: string) {
 }
 
 const NOT_CONFIGURED = 'Las cuentas todavía no están configuradas en esta instalación.';
+let sessionInitialized = false;
 
 export const useSession = create<SessionState>((set, get) => ({
   ready: !supabase, session: null, profile: null,
   init: () => {
     if (!supabase) return;
+    if (sessionInitialized) return;
+    sessionInitialized = true;
     const loadProfile = async (session: Session | null) => {
       if (!session) { set({ profile: null }); return; }
       const { data } = await supabase!.from('profiles').select('id, username, display_name, lichess, chesscom').eq('id', session.user.id).maybeSingle();
