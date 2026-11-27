@@ -801,6 +801,9 @@ td.answer .tag { margin-left: 8px; }
 .departures li.is-refreshing { animation: quote-refresh 1000ms cubic-bezier(.16, 1, .3, 1); }
 .departures li.is-refreshing .dep-n { color: var(--accent); }
 .departures li.is-refreshing .dep-detail { color: var(--ink); }
+.departures li.is-refreshing .flap .turn { animation: ticker-letter 820ms cubic-bezier(.16, 1, .3, 1); }
+.departures li.is-refreshing .flap .turn:nth-child(2n) { animation-delay: 70ms; }
+.departures li.is-refreshing .flap .turn:nth-child(3n) { animation-delay: 140ms; }
 .departures li > .flap { justify-self: start; }
 .departures .flap { font-size: 22px; }
 .departures li > .flap:last-child { font-size: 18px; justify-self: end; }
@@ -812,8 +815,14 @@ td.answer .tag { margin-left: 8px; }
   48% { background: color-mix(in srgb, var(--accent) 8%, transparent); box-shadow: inset 3px 0 0 var(--accent); transform: translateX(0); }
   100% { background: transparent; transform: translateX(0); }
 }
+@keyframes ticker-letter {
+  0% { opacity: .35; transform: perspective(80px) rotateX(-90deg); }
+  42% { opacity: 1; transform: perspective(80px) rotateX(18deg); }
+  100% { opacity: 1; transform: perspective(80px) rotateX(0); }
+}
 @media (prefers-reduced-motion: reduce) {
   .departures li.is-refreshing { animation: none; }
+  .departures li.is-refreshing .flap .turn { animation: none; }
 }
 .desk { position: sticky; top: 88px; display: grid; gap: 12px; padding: 22px; background: var(--sheet); border: 3px solid #2a2d31; }
 .desk h2 { font-stretch: 62%; font-weight: 700; font-size: 34px; line-height: 1.02; letter-spacing: .05em; text-transform: uppercase; }
