@@ -17,16 +17,16 @@ La instalación no incluye CDN ni fuentes remotas en runtime. El motor previsto 
 
 GodChess combina el entrenador para principiantes con un tablero de análisis inspirado en las funciones de En Croissant (implementación propia; En Croissant es solo referencia funcional).
 
-- **Análisis**: árbol de jugadas con variantes, comentarios y valoraciones (NAG), navegación con teclado (←/→, Inicio/Fin, F para girar, espacio juega la mejor línea), importación y exportación PGN/FEN, nombre de apertura (base Lichess CC0), Stockfish 17.1 con 1–5 líneas (MultiPV) y barra de evaluación. Enlaces compartibles: `#pgn=<PGN codificado>` o `#fen=<FEN>`.
+- **Análisis**: árbol de jugadas con variantes, comentarios y valoraciones (NAG), navegación con teclado (←/→, Inicio/Fin, F para girar, espacio juega la mejor línea), importación y exportación PGN/FEN, nombre de apertura (base Lichess CC0), Stockfish 17.1 con 1–5 líneas (MultiPV) y barra de evaluación. Probabilidades de ganar, empatar y perder (W/D/L). Editor de posición y lectura de posiciones desde capturas de tableros digitales. Enlaces compartibles: `#pgn=<PGN codificado>` o `#fen=<FEN>`.
 - **Informe de partida**: análisis completo con Stockfish (profundidad 10/14/18), precisión por jugador con las fórmulas de Lichess, imprecisiones, errores y errores graves marcados en la notación, la mejor línea del motor añadida como variante y gráfica de evaluación navegable.
-- **Partidas**: base local en IndexedDB; importa archivos PGN con muchas partidas (arrastrar y soltar), búsqueda, filtros y orden por columnas. Las partidas contra el motor y por invitación se guardan solas.
-- **Repertorio**: guarda líneas desde el análisis (con blancas o negras) y practícalas con repetición espaciada; explorador de 3.865 aperturas.
-- **Entrenar**: camino por fases, lecciones de piezas, diagnóstico de seis posiciones, puzzles con escaneo CCT obligatorio, drill de visión, biblioteca de mates y diario de errores con los intentos reales.
-- **Jugar**: partida lenta contra Stockfish con fuerza adaptada y partidas P2P por invitación (`npm run server` arranca el PeerServer local).
+- **Partidas**: importación directa desde Lichess o Chess.com por usuario (descarga, analiza con Stockfish las que no traigan evaluación y entrena a tu doble con un solo botón; la conexión solo se hace al pulsarlo), base local en IndexedDB y «Tus estadísticas» (mapa de calor de tus errores, errores por fase, primera pieza que pierdes, cuándo rendirse y nivel estimado por partida; analiza en lote las partidas pendientes); importa archivos PGN con muchas partidas (arrastrar y soltar), búsqueda, filtros y orden por columnas. Las partidas contra el motor y por invitación se guardan solas.
+- **Repertorio**: guarda líneas desde el análisis (con blancas o negras) y practícalas con repetición espaciada; «Mi árbol» resume tus partidas por posición (qué juegas y cómo puntúa); «Maestros» es un explorador con millones de partidas de jugadores 2400+ que cubre todas las aperturas con nombre y permite saltar a cualquiera; explorador de 3.865 aperturas.
+- **Entrenar**: camino por fases, lecciones de piezas, diagnóstico de seis posiciones, puzzles con escaneo CCT obligatorio y su partida de origen, contrarreloj, drill de visión, biblioteca de mates y «Mis errores» (tus fallos como puzzles), «Adivina la jugada» con puntuación de Stockfish y diario de errores con los intentos reales.
+- **Jugar**: partida lenta contra un bot que empieza en su nivel mínimo (≈250) y se adapta a tus resultados (bajo 1320 imita a un jugador más débil eligiendo entre las candidatas de Stockfish con imprecisión y errores; al entrar por primera vez, Inicio te pide jugar esa partida), **contra tu doble** (un rival entrenado con tus partidas: repite tus aperturas y, fuera de ellas, elige entre las candidatas de Stockfish según tu perfil de errores por fase; es un modelo estadístico, no una red neuronal) y partidas P2P por invitación (`npm run server` arranca el PeerServer local).
 
 ## Diseño
 
-Dirección visual «Columna de ajedrez»: el análisis se compone como la columna de ajedrez de un diario (diagrama con casillas rayadas, pie «Juegan las blancas», partida en notación de columna). Papel prensa gris, tinta negra, un rojo directo reservado para los errores y una edición nocturna. Tipografía Archivo autoalojada (sin peticiones de red). Detalles en `DESIGN.md`.
+Dirección visual «Panel de salidas»: GodChess se lee como el panel de una sala de torneo. Las cifras importantes (evaluación, precisión, contadores, relojes) van en celdas de paleta que giran al cambiar; el ámbar marca lo activo y los errores «?», el rojo los errores graves «??». Edición oscura por defecto y edición de día; tableros Acero, Diagrama, Madera y Verde. Tipografía Archivo autoalojada. Detalles en `DESIGN.md`.
 
 ## Impeccable
 
@@ -34,7 +34,7 @@ Se instaló con `npx skills add pbakaus/impeccable`. Se aplicó el flujo `init �
 
 ## Motor y multi-thread
 
-Stockfish 17.1 WASM single-thread está en `public/engine/` y se ejecuta siempre en un Web Worker. El modo multi-thread se activará opcionalmente sirviendo `coi-serviceworker.js` con aislamiento cross-origin; el modo por defecto sigue siendo single-thread para funcionar sin configuración adicional.
+Stockfish 17.1 corre siempre en un Web Worker. Con aislamiento de origen cruzado (`Cross-Origin-Opener-Policy: same-origin` y `Cross-Origin-Embedder-Policy: require-corp`, que `npm run dev` y `npm run preview` ya envían) usa la versión multihilo con hasta 4 hilos, unas 4 veces más rápida; sin esas cabeceras vuelve sola a la versión de un hilo de `public/engine/`. La versión multihilo (~79 MB) no está en git: `npm run engine:copy` (se ejecuta solo antes de `dev`, `build` y `preview`) la copia desde `node_modules/stockfish` a `public/engine/mt/`. Si sirves la app con otro servidor, añade esas dos cabeceras.
 
 ## Privacidad
 
@@ -42,13 +42,7 @@ No hay backend de cuentas ni telemetría. Progreso y ajustes irán a localStorag
 
 ## Datasets locales
 
-Las aperturas de `lichess-org/chess-openings` están vendorizadas en `public/data/openings/` desde el commit `48a8c0e733facfdc9a3723fe882e51ec28014074`. La base de puzzles se descarga desde `https://database.lichess.org/lichess_db_puzzle.csv.zst`; su transferencia actual quedó pendiente porque el servidor entregó rangos inconsistentes y `zstd -t` detectó corrupción. No se integra ningún archivo hasta pasar esa validación. ChessTempo no se copia: su página no ofrece una descarga masiva autorizada visible.
-# Nota de licencias
-
-GodChess usa `@lichess-org/chessground` para el tablero interactivo. Chessground
-se distribuye bajo GPL-3.0-or-later; cualquier distribución de GodChess que lo
-incluya debe respetar esa licencia y conservar sus avisos correspondientes.
-
-GodChess se distribuye bajo GPL-3.0-or-later. Las funciones de repertorio,
-análisis local, PGN y repetición espaciada se implementan dentro de GodChess;
-En Croissant se usa como referencia funcional, no como código embebido.
+- Aperturas: `lichess-org/chess-openings` (CC0) vendorizadas en `public/data/openings/` (commit `48a8c0e733facfdc9a3723fe882e51ec28014074`).
+- Puzzles con partida de origen: `mcognetta/lichess-combined-puzzle-game-db` (CC0), muestra de 50.000 puzzles. `npm run puzzles:origins` genera `public/data/puzzles/index.json` (8.790 puzzles repartidos por rating y tema) y `origins.json` (jugadas hasta el puzzle y continuación, jugadores, ratings, ritmo y fecha).
+- Explorador de maestros: Lichess Elite Database (database.nikonoel.fr, partidas de Lichess de jugadores 2400+). Descarga los meses que quieras a `data/raw/lichess_elite_AAAA-MM.zip` y ejecuta `npm run masters:build`: extrae cada mes en paralelo (con caché en `data/raw/partials/`), suma todos y reparte el resultado en 64 archivos en `public/data/masters/shards/`, que la app carga por posición. Cubre todas las aperturas con nombre de `chess-openings` hasta su última jugada, aunque los maestros las jueguen poco; el resto de posiciones necesita 5 o más partidas.
+- Las descargas originales van a `data/raw/` (fuera de git). ChessTempo no se copia: no ofrece descarga masiva autorizada.

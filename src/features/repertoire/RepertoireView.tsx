@@ -12,6 +12,8 @@ const figurinePgn = (pgn: string) => { let white = true; return pgn.split(/\s+/)
 import { buildOpeningIndex, detectOpening, loadOpenings, searchOpenings, type Opening } from '../../training/openings';
 import { spanishOpening } from '../../training/openingNames';
 import { openingsUnlocked } from '../../training/model';
+import { OpeningTreeView } from './OpeningTreeView';
+import { MastersView } from './MastersView';
 
 export function RepertoireView() {
   const { repertoireSection, setRepertoireSection, repertoire } = useStore();
@@ -19,8 +21,8 @@ export function RepertoireView() {
   return (
     <div className="page repertoire">
       <PageHead title="Repertorio" lede="Las líneas que decides jugar, repasadas con repetición espaciada: cada jugada vuelve justo antes de que la olvides." />
-      <SubNav label="Repertorio" value={repertoireSection} onChange={setRepertoireSection} items={[{ id: 'mine', label: 'Mis líneas', count: Object.keys(repertoire).length }, { id: 'practice', label: 'Practicar', count: due }, { id: 'explorer', label: 'Explorador de aperturas' }]} />
-      {repertoireSection === 'mine' ? <MyLines /> : repertoireSection === 'practice' ? <Practice /> : <Explorer />}
+      <SubNav label="Repertorio" value={repertoireSection} onChange={setRepertoireSection} items={[{ id: 'mine', label: 'Mis líneas', count: Object.keys(repertoire).length }, { id: 'practice', label: 'Practicar', count: due }, { id: 'tree', label: 'Mi árbol' }, { id: 'masters', label: 'Maestros' }, { id: 'explorer', label: 'Nombres de aperturas' }]} />
+      {repertoireSection === 'mine' ? <MyLines /> : repertoireSection === 'practice' ? <Practice /> : repertoireSection === 'tree' ? <OpeningTreeView /> : repertoireSection === 'masters' ? <MastersView /> : <Explorer />}
     </div>
   );
 }

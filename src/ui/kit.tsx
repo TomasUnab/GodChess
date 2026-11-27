@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { figurine, rootPly } from '../chess/tree';
+import { Flap } from './Flap';
 
 /** Figurine SAN for an engine line starting at `fen`. */
 export function figurineLine(sans: string[], fen: string) {
@@ -57,7 +58,7 @@ export function Stat({ label, value, note, tone }: { label: string; value: strin
   return (
     <div className="stat">
       <dt>{label}</dt>
-      <dd className={tone}>{value}</dd>
+      <dd className={tone}><Flap value={value} tone={tone} /></dd>
       {note && <dd className="stat-note">{note}</dd>}
     </div>
   );

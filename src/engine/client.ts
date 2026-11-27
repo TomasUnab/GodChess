@@ -13,6 +13,8 @@ export class EngineClient {
   private pending?: Pending;
   private ready?: Promise<void>;
   private sequence = 0;
+  /** Threads the engine runs with: more than one only on cross-origin-isolated pages. */
+  threads = 1;
   private streamId = 0;
   private streamLines = new Map<number, EngineInfo>();
   private onLines?: (lines: EngineLines) => void;
@@ -23,7 +25,7 @@ export class EngineClient {
     this.ready = new Promise((resolve, reject) => {
       this.worker!.onmessage = (event: MessageEvent<EngineMessage>) => {
         const data = event.data;
-        if (data.type === 'readyok') resolve();
+        if (data.type === 'readyok') { this.threads = data.threads; resolve(); }
         if (data.type === 'error') { reject(new Error(data.error)); this.settle(this.pending?.id ?? -1, new Error(data.error)); }
         if (data.type === 'result') this.settle(data.id, undefined, data.result);
         if (data.type === 'info' && data.id === this.streamId && this.onLines) this.collect(data.info);
@@ -37,6 +39,8 @@ export class EngineClient {
   fullStrength() { this.post({ type: 'fullStrength' }); }
 
   analyze(fen: string, depth: number) { return this.request(id => ({ type: 'analyze', id, fen, depth }), 30_000); }
+  /** Several best lines at a fixed depth, in one search (result.lines, ranked). */
+  analyzeMulti(fen: string, depth: number, multipv: number) { return this.request(id => ({ type: 'multi', id, fen, depth, multipv }), 30_000); }
   bestMove(fen: string, movetime: number) { return this.request(id => ({ type: 'bestMove', id, fen, movetime }), Math.max(5_000, movetime * 4)); }
 
   /** Infinite MultiPV analysis; `onLines` receives the lines sorted by rank as they deepen. */
@@ -78,4 +82,15 @@ export class EngineClient {
     const pending = this.pending; this.pending = undefined;
     if (error) pending.reject(error); else pending.resolve(result!);
   }
+}
+
+let shared: EngineClient | null = null;
+/**
+ * The app's single Stockfish. Views reconfigure strength when they take it and
+ * call `stop()` when they leave; the worker (and the 79 MB threaded build) stays
+ * loaded, so switching tabs never reloads the engine.
+ */
+export function sharedEngine(): EngineClient {
+  shared ??= new EngineClient();
+  return shared;
 }

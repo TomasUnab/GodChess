@@ -2,13 +2,26 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, FileUp, Search, Trash2 } from 'lucide-react';
 import { useStore } from '../../app/store';
 import { catalogNumber, deleteGame, importPgn, listGames, migrateLegacyGames, type StoredGame } from '../../storage/games';
-import { PageHead, Toast, useToast } from '../../ui/kit';
+import { PageHead, SubNav, Toast, useToast } from '../../ui/kit';
+import { StatsView } from './StatsView';
+import { OnlineImport } from '../play/OnlineImport';
 
 type SortKey = 'id' | 'white' | 'black' | 'date' | 'plies' | 'eco';
 const SOURCE_LABEL: Record<StoredGame['source'], string> = { import: 'Importada', engine: 'Contra el motor', p2p: 'P2P', analysis: 'Análisis' };
 const PAGE = 50;
 
 export function GamesView() {
+  const [tab, setTab] = useState<'base' | 'stats'>('base');
+  return (
+    <div className="page games">
+      <PageHead title="Partidas" lede="Tu base de partidas local y lo que dicen de ti. Importa archivos PGN de Lichess, Chess.com o de tu club, y abre cualquiera en el tablero de análisis." />
+      <SubNav label="Partidas" value={tab} onChange={setTab} items={[{ id: 'base', label: 'Base de partidas' }, { id: 'stats', label: 'Tus estadísticas' }]} />
+      {tab === 'base' ? <GamesBase /> : <StatsView />}
+    </div>
+  );
+}
+
+function GamesBase() {
   const [games, setGames] = useState<StoredGame[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState('');
@@ -65,14 +78,15 @@ export function GamesView() {
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
 
   return (
-    <div className={`page games ${dragging ? 'dragging' : ''}`}
+    <div className={`games-base ${dragging ? 'dragging' : ''}`}
       onDragOver={event => { if (event.dataTransfer.types.includes('Files')) { event.preventDefault(); setDragging(true); } }}
       onDragLeave={event => { if (event.currentTarget === event.target) setDragging(false); }}
       onDrop={event => { event.preventDefault(); setDragging(false); void importFiles(event.dataTransfer.files); }}>
-      <PageHead title="Partidas" lede="Tu base de partidas local. Importa archivos PGN de Lichess, Chess.com o de tu club, y abre cualquiera en el tablero de análisis.">
+      <details className="online-details"><summary>Importar desde Lichess o Chess.com por nombre de usuario</summary><OnlineImport onReady={() => void refresh()} /></details>
+      <div className="base-actions">
         <button className="primary" onClick={() => file.current?.click()} disabled={busy}><FileUp size={18} /> {busy ? 'Importando…' : 'Importar PGN'}</button>
         <input ref={file} type="file" accept=".pgn,.txt,application/x-chess-pgn" multiple hidden onChange={event => { void importFiles(event.target.files); event.target.value = ''; }} />
-      </PageHead>
+      </div>
 
       <div className="filters" role="search">
         <label className="search"><Search size={16} aria-hidden="true" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Buscar jugador, evento, ECO o fecha" aria-label="Buscar partidas" /></label>

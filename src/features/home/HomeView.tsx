@@ -6,9 +6,11 @@ import { dueReviews } from '../../training/repetition';
 import { dueEntries } from '../../chess/repertoire';
 import { listGames, type StoredGame } from '../../storage/games';
 import { Stat } from '../../ui/kit';
+import { Flap } from '../../ui/Flap';
 
 export function HomeView() {
-  const { training, repertoire, go, setTrain, setRepertoireSection, loadGame } = useStore();
+  const { training, repertoire, go, setTrain, setPlay, setRepertoireSection, loadGame } = useStore();
+  const firstGame = !training.botGames;
   const [games, setGames] = useState<StoredGame[] | null>(null);
   useEffect(() => { listGames().then(rows => setGames(rows.slice(0, 6))).catch(() => setGames([])); }, []);
   const focus = weeklyFocus(training);
@@ -26,23 +28,30 @@ export function HomeView() {
     <div className="page home">
       <section className="front">
         <div className="lead-story">
-          <h1>{hasErrors ? `Esta semana: ${focus.drill.toLowerCase()}.` : 'Primero, medir. Después, entrenar.'}</h1>
-          <p className="lede">{hasErrors
+          <h1>{firstGame ? 'Primero, una partida contra el bot.' : hasErrors ? `Esta semana: ${focus.drill.toLowerCase()}.` : 'Primero, medir. Después, entrenar.'}</h1>
+          <p className="lede">{firstGame
+            ? <>Empieza jugando contra el bot en su nivel mínimo ({training.botLevel ?? 250}). Esa partida es tu punto de partida: después el bot se adapta a ti (sube cuando le ganas y baja cuando pierdes) y GodChess usa tus errores para elegir qué entrenar.</>
+            : hasErrors
             ? <>Tu causa de derrota más repetida es <strong>{focus.tag}</strong>. El plan de hoy: tres escaneos CCT, los repasos pendientes y una partida lenta que después analizas.</>
             : <>Haz la calibración de seis posiciones para fijar tu rating interno. Desde ahí, son tus propios errores los que eligen el siguiente ejercicio.</>}</p>
           <div className="row">
-            <button className="primary" onClick={() => setTrain(hasErrors ? 'puzzles' : 'diagnosis')}>{hasErrors ? 'Empezar la sesión' : 'Hacer la calibración'} <ArrowRight size={18} /></button>
-            <button className="ghost" onClick={() => go('analysis')}>Abrir el tablero de análisis</button>
+            {firstGame ? <>
+              <button className="primary" onClick={() => setPlay('engine')}>Jugar contra el bot <ArrowRight size={18} /></button>
+              <button className="ghost" onClick={() => setTrain('diagnosis')}>Antes, la calibración de seis posiciones</button>
+            </> : <>
+              <button className="primary" onClick={() => setTrain(hasErrors ? 'puzzles' : 'diagnosis')}>{hasErrors ? 'Empezar la sesión' : 'Hacer la calibración'} <ArrowRight size={18} /></button>
+              <button className="ghost" onClick={() => go('analysis')}>Abrir el tablero de análisis</button>
+            </>}
           </div>
         </div>
 
         <div className="today">
           <h2 className="section-title">Pendiente hoy</h2>
           <ul className="agenda">
-            <li><button onClick={() => setTrain('puzzles')}><b>{puzzleDue}</b><span>{puzzleDue === 1 ? 'puzzle por repasar' : 'puzzles por repasar'}</span></button></li>
-            {mineDue > 0 && <li><button onClick={() => setTrain('mistakes')}><b>{mineDue}</b><span>{mineDue === 1 ? 'error tuyo convertido en puzzle' : 'errores tuyos convertidos en puzzle'}</span></button></li>}
-            <li><button onClick={() => setRepertoireSection('practice')}><b>{lineDue}</b><span>{lineDue === 1 ? 'posición de repertorio' : 'posiciones de repertorio'}</span></button></li>
-            <li><button onClick={() => unanalysed ? loadGame(unanalysed.pgn, { gameId: unanalysed.id, at: 'start' }) : go('play')}><b>{unanalysed ? '1' : '—'}</b><span>{unanalysed ? `partida sin analizar: ${unanalysed.white} contra ${unanalysed.black}` : 'juega una partida lenta para analizarla'}</span></button></li>
+            <li><button onClick={() => setTrain('puzzles')}><b><Flap value={String(puzzleDue)} /></b><span>{puzzleDue === 1 ? 'puzzle por repasar' : 'puzzles por repasar'}</span></button></li>
+            {mineDue > 0 && <li><button onClick={() => setTrain('mistakes')}><b><Flap value={String(mineDue)} /></b><span>{mineDue === 1 ? 'error tuyo convertido en puzzle' : 'errores tuyos convertidos en puzzle'}</span></button></li>}
+            <li><button onClick={() => setRepertoireSection('practice')}><b><Flap value={String(lineDue)} /></b><span>{lineDue === 1 ? 'posición de repertorio' : 'posiciones de repertorio'}</span></button></li>
+            <li><button onClick={() => unanalysed ? loadGame(unanalysed.pgn, { gameId: unanalysed.id, at: 'start' }) : go('play')}><b><Flap value={String(unanalysed ? '1' : '—')} /></b><span>{unanalysed ? `partida sin analizar: ${unanalysed.white} contra ${unanalysed.black}` : 'juega una partida lenta para analizarla'}</span></button></li>
           </ul>
         </div>
       </section>

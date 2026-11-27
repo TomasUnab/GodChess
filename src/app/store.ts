@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { applyAutopsy, calibrateRating, penalizeCct, recordGame, recordPuzzle, recordVision, useHint, type ErrorTag, type TrainingState } from '../training/model';
 import { loadMyPuzzles, markAutopsy, mergePuzzles, reviewId, saveMyPuzzles, type MyPuzzle } from '../training/autopsy';
 import { classifyFromEvals } from '../chess/report';
+import { MIN_LEVEL, nextLevel } from '../chess/adaptiveBot';
 import { addPuzzleAttempt, loadTraining, saveTraining } from '../storage/local';
 import { scheduleReview } from '../training/repetition';
 import { addMove, createTree, deleteNode, lineEnd, pathTo, promoteVariation, toggleNag, updateNode, type GameTree, type MoveInput } from '../chess/tree';
@@ -9,17 +10,18 @@ import { parsePgn, toPgn } from '../chess/pgn';
 import { addLine, loadRepertoire, removeEntry, review, saveRepertoire, type Repertoire, type RepertoireColor } from '../chess/repertoire';
 
 export type Area = 'home' | 'analysis' | 'games' | 'repertoire' | 'train' | 'play';
-export type TrainSection = 'path' | 'lesson' | 'diagnosis' | 'puzzles' | 'mistakes' | 'vision' | 'mates' | 'journal';
-export type PlaySection = 'engine' | 'invite';
-export type RepertoireSection = 'mine' | 'practice' | 'explorer';
+export type TrainSection = 'path' | 'lesson' | 'diagnosis' | 'puzzles' | 'blitz' | 'mistakes' | 'guess' | 'vision' | 'mates' | 'journal';
+export type PlaySection = 'engine' | 'clone' | 'invite';
+export type RepertoireSection = 'mine' | 'practice' | 'tree' | 'masters' | 'explorer';
 export type Theme = 'day' | 'night';
 type Scan = { checks: boolean; captures: boolean; threats: boolean };
 
 const ANALYSIS_KEY = 'godchess.analysis.v1';
 const PREFS_KEY = 'godchess.prefs.v1';
 
-type Prefs = { theme: Theme; multipv: number; engineOn: boolean; figurines: boolean; xray: boolean; playerName: string };
-const defaultPrefs: Prefs = { theme: 'day', multipv: 3, engineOn: true, figurines: true, xray: false, playerName: '' };
+export type BoardTheme = 'steel' | 'diagram' | 'wood' | 'green';
+type Prefs = { theme: Theme; board: BoardTheme; multipv: number; engineOn: boolean; figurines: boolean; xray: boolean; playerName: string };
+const defaultPrefs: Prefs = { theme: 'night', board: 'steel', multipv: 3, engineOn: true, figurines: true, xray: false, playerName: '' };
 const parse = (pgn: string) => classifyFromEvals(parsePgn(pgn));
 function readJson<T>(key: string, fallback: T): T { try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : fallback; } catch { return fallback; } }
 function writeJson(key: string, value: unknown) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* blocked storage: keep state in memory */ } }
@@ -68,7 +70,8 @@ type Store = {
   setCandidate: (candidate: string) => void; setScan: (key: keyof Scan) => void; resetScan: () => void; completeScan: () => void;
   calibrate: (correct: number) => void;
   recordPuzzleAttempt: (solved: boolean, puzzleId: string, rating: number, move?: string) => void;
-  recordGameOutcome: (tag?: ErrorTag) => void; recordVisionAttempt: (correct: boolean) => void; recordCctFailure: () => void; useHint: (level: 1 | 2) => void;
+  recordGameOutcome: (tag?: ErrorTag) => void;
+  recordBotResult: (result: 'win' | 'draw' | 'loss') => number; recordVisionAttempt: (correct: boolean) => void; recordCctFailure: () => void; useHint: (level: 1 | 2) => void;
 };
 
 const persistTree = (tree: GameTree, gameId?: number) => writeJson(ANALYSIS_KEY, { pgn: toPgn(tree), gameId });
@@ -85,7 +88,14 @@ export const useStore = create<Store>((set, get) => {
     setPlay: playSection => set({ playSection, area: 'play' }),
     setRepertoireSection: repertoireSection => set({ repertoireSection, area: 'repertoire' }),
     openLesson: lessonId => set({ lessonId, train: 'lesson', area: 'train' }),
-    prefs: readJson(PREFS_KEY, defaultPrefs),
+    prefs: (() => {
+      // The departures-board world is dark first: earlier prefs move to it once.
+      const saved = readJson<Prefs & { world?: number }>(PREFS_KEY, defaultPrefs);
+      if (saved.world === 2) return saved;
+      const moved = { ...saved, theme: 'night' as Theme, board: 'steel' as BoardTheme, world: 2 };
+      writeJson(PREFS_KEY, moved);
+      return moved;
+    })(),
     setPrefs: patch => set(s => { const prefs = { ...s.prefs, ...patch }; writeJson(PREFS_KEY, prefs); return { prefs }; }),
 
     tree: initial.tree, current: initial.current, gameId: initial.gameId, orientation: 'white', reportVersion: 0,
@@ -162,6 +172,11 @@ export const useStore = create<Store>((set, get) => {
       void addPuzzleAttempt({ puzzleId, solved, rating, move, createdAt: new Date().toISOString() }).catch(() => undefined);
     },
     recordGameOutcome: tag => withTraining(state => recordGame(state, tag)),
+    recordBotResult: result => {
+      const level = nextLevel(get().training.botLevel ?? MIN_LEVEL, result);
+      withTraining(state => ({ ...state, botLevel: level, botGames: (state.botGames ?? 0) + 1 }));
+      return level;
+    },
     recordVisionAttempt: correct => withTraining(state => recordVision(state, correct)),
     recordCctFailure: () => withTraining(penalizeCct),
     useHint: level => withTraining(state => useHint(state, level)),

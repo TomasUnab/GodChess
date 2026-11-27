@@ -3,11 +3,14 @@ import { Chess } from 'chess.js';
 import Peer, { type DataConnection } from 'peerjs';
 import { Copy, Gauge, RotateCcw, ScanEye } from 'lucide-react';
 import { xrayHighlights } from '../../chess/tactics';
+import { MIN_LEVEL, pickBotMove, STOCKFISH_FLOOR } from '../../chess/adaptiveBot';
+import { Flap } from '../../ui/Flap';
+import { CloneView } from './CloneView';
 import { XrayKey } from '../../ui/XrayKey';
 import { useStore } from '../../app/store';
 import { ChessgroundBoard } from '../../ui/ChessgroundBoard';
 import { PageHead, SubNav, Toast, useToast } from '../../ui/kit';
-import { EngineClient } from '../../engine/client';
+import { sharedEngine, type EngineClient } from '../../engine/client';
 import type { ErrorTag } from '../../training/model';
 import { localPeerConfig, peerUnavailableMessage } from '../../social/peerConfig';
 import { saveGameRecord } from '../../social/gameRecord';
@@ -20,8 +23,8 @@ export function PlayView() {
   const { playSection, setPlay } = useStore();
   return (
     <div className="page play">
-      <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'invite', label: 'Invitar a alguien' }]} />
-      {playSection === 'engine' ? <EngineGame /> : <InviteGame />}
+      <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'invite', label: 'Invitar a alguien' }]} />
+      {playSection === 'engine' ? <EngineGame /> : playSection === 'clone' ? <CloneView /> : <InviteGame />}
     </div>
   );
 }
@@ -30,8 +33,10 @@ const TAGS: ErrorTag[] = ['pieza colgada', 'amenaza no vista', 'mate fallado', '
 const outcome = (game: Chess) => game.isCheckmate() ? (game.turn() === 'w' ? '0-1' : '1-0') : game.isDraw() || game.isStalemate() ? '1/2-1/2' : '*';
 
 function EngineGame() {
-  const { training, recordGameOutcome, loadGame, prefs, setPrefs } = useStore();
-  const elo = Math.max(1320, Math.min(3190, training.rating + 200));
+  const { training, recordGameOutcome, recordBotResult, loadGame, prefs, setPrefs } = useStore();
+  // The bot's level adapts to your results; it starts at the minimum.
+  const elo = training.botLevel ?? MIN_LEVEL;
+  const firstGame = !training.botGames;
   const [fen, setFen] = useState(new Chess().fen());
   const [last, setLast] = useState<string>();
   const [status, setStatus] = useState('Tu turno · juegas con blancas');
@@ -42,14 +47,17 @@ function EngineGame() {
   const game = useRef(new Chess());
   const engine = useRef<EngineClient | null>(null);
   const toast = useToast();
-  useEffect(() => { const client = new EngineClient(); engine.current = client; client.init().then(() => client.setStrength(5, elo, 300)).catch(() => setStatus('Motor no disponible · puedes mover las dos piezas')); return () => client.quit(); }, [elo]);
+  useEffect(() => { const client = sharedEngine(); engine.current = client; client.init().then(() => { if (elo >= STOCKFISH_FLOOR) client.setStrength(Math.round((elo - 1320) / 90), Math.min(3190, elo), 300); else client.fullStrength(); }).catch(() => setStatus('Motor no disponible · puedes mover las dos piezas')); return () => client.stop(); }, [elo]);
+  const [levelNote, setLevelNote] = useState('');
 
   const finish = async () => {
     const result = outcome(game.current);
     setOver(result);
     setStatus(result === '1-0' ? 'Ganaste. Guarda la partida y analízala.' : result === '0-1' ? 'Partida perdida · etiqueta la causa' : 'Tablas');
     const tree = parsePgn(game.current.pgn());
-    tree.headers = { ...tree.headers, Event: 'Partida lenta contra el motor', White: 'Tú', Black: `Stockfish ${elo}`, Result: result, Date: today() };
+    tree.headers = { ...tree.headers, Event: 'Partida lenta contra el bot', White: 'Tú', Black: `Bot nivel ${elo}`, Result: result, Date: today() };
+    const next = recordBotResult(result === '1-0' ? 'win' : result === '0-1' ? 'loss' : 'draw');
+    setLevelNote(next > elo ? `El bot sube a nivel ${next} para la próxima.` : next < elo ? `El bot baja a nivel ${next} para la próxima.` : `El bot sigue en nivel ${next}.`);
     try { setSavedId(await putGame(recordFromTree(tree, 'engine'))); } catch { /* storage blocked: the game can still be analysed */ }
   };
 
@@ -59,27 +67,38 @@ function EngineGame() {
     if (!move) { setFen(game.current.fen()); return; }
     setFen(game.current.fen()); setLast(from + to);
     if (game.current.isGameOver()) { void finish(); return; }
-    setThinking(true); setStatus('Stockfish está pensando…');
-    engine.current?.bestMove(game.current.fen(), 300).then(result => {
-      const reply = game.current.move({ from: result.bestMove.slice(0, 2), to: result.bestMove.slice(2, 4), promotion: result.bestMove[4] });
-      if (reply) { setFen(game.current.fen()); setLast(result.bestMove.slice(0, 4)); }
+    setThinking(true); setStatus('El bot está pensando…');
+    const fenNow = game.current.fen();
+    // Under 1320 Stockfish can't weaken itself: the bot picks among its candidates like a weaker player.
+    const think = elo >= STOCKFISH_FLOOR
+      ? engine.current!.bestMove(fenNow, 300).then(result => result.bestMove)
+      : engine.current!.analyzeMulti(fenNow, 8, 5).then(result => pickBotMove(fenNow, elo, (result.lines ?? []).filter(line => line.pv[0]).map(line => ({ uci: line.pv[0], score: line.score }))) ?? result.bestMove);
+    think.then(uci => {
+      const reply = game.current.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] });
+      if (reply) { setFen(game.current.fen()); setLast(uci.slice(0, 4)); }
       setThinking(false);
       if (game.current.isGameOver()) void finish(); else setStatus('Tu turno');
     }).catch(() => { setThinking(false); setStatus('Motor no disponible · tu turno'); });
   };
-  const reset = () => { game.current.reset(); setFen(game.current.fen()); setLast(undefined); setStatus('Tu turno · juegas con blancas'); setThinking(false); setOver(null); setTag(null); setSavedId(undefined); };
-  const resign = () => { if (over || game.current.history().length === 0) return; setOver('0-1'); setStatus('Te rendiste · etiqueta la causa'); const tree = parsePgn(game.current.pgn()); tree.headers = { ...tree.headers, Event: 'Partida lenta contra el motor', White: 'Tú', Black: `Stockfish ${elo}`, Result: '0-1', Date: today() }; void putGame(recordFromTree(tree, 'engine')).then(setSavedId).catch(() => undefined); };
+  const reset = () => { game.current.reset(); setFen(game.current.fen()); setLast(undefined); setStatus('Tu turno · juegas con blancas'); setThinking(false); setOver(null); setTag(null); setSavedId(undefined); setLevelNote(''); };
+  const resign = () => { if (over || game.current.history().length === 0) return; setOver('0-1'); setStatus('Te rendiste · etiqueta la causa'); const tree = parsePgn(game.current.pgn()); tree.headers = { ...tree.headers, Event: 'Partida lenta contra el bot', White: 'Tú', Black: `Bot nivel ${elo}`, Result: '0-1', Date: today() }; const next = recordBotResult('loss'); setLevelNote(next < elo ? `El bot baja a nivel ${next} para la próxima.` : `El bot sigue en nivel ${next}.`); void putGame(recordFromTree(tree, 'engine')).then(setSavedId).catch(() => undefined); };
   const history = game.current.history();
 
   return (
     <section className="work">
       <div>
         <div className="board-frame"><ChessgroundBoard position={fen} movable={!thinking && !over ? 'white' : false} onPieceDrop={drop} lastMove={last} highlight={prefs.xray ? xrayHighlights(fen, 'w') : undefined} label="Partida contra el motor" /></div>
-        <div className="caption"><strong>{status}</strong><span>Stockfish {elo} · 300 ms por jugada</span></div>
+        <div className="caption"><strong>{status}</strong><span>Bot · nivel {elo}{elo < STOCKFISH_FLOOR ? ' (Stockfish imitando a un jugador de ese nivel)' : ' (Stockfish limitado)'}</span></div>
         {prefs.xray && <XrayKey fen={fen} perspective="w" />}
       </div>
       <div className="side-panel">
-        <PageHead title="Partida lenta" lede="Busca jaques, capturas y amenazas antes de cada jugada. El motor juega desde tu dispositivo con fuerza adaptada a tu rating interno." />
+        <PageHead title={firstGame ? 'Tu primera partida' : 'Partida lenta'} lede={firstGame
+          ? `El bot empieza en su nivel mínimo (${elo}). Juega sin prisa y busca jaques, capturas y amenazas antes de cada jugada. Al terminar, el bot se adapta: sube cuando le ganas y baja cuando pierdes.`
+          : 'Busca jaques, capturas y amenazas antes de cada jugada. El bot juega desde tu dispositivo y su nivel sigue tus resultados: sube cuando le ganas y baja cuando pierdes.'} />
+        <dl className="stats ruled">
+          <div className="stat"><dt>Nivel del bot</dt><dd><Flap value={String(elo)} tone="warn" /></dd><dd className="stat-note">{training.botGames ?? 0} {(training.botGames ?? 0) === 1 ? 'partida jugada' : 'partidas jugadas'}</dd></div>
+        </dl>
+        {levelNote && <p className="verdict-line good" role="status">{levelNote}</p>}
         <p className="moves-inline">{history.length ? history.map((san, index) => index % 2 === 0 ? `${index / 2 + 1}.${san}` : san).join(' ') : 'Aún no hay jugadas.'}</p>
         {over === '0-1' ? (
           <div className="closing">
@@ -170,9 +189,9 @@ function InviteGame() {
   return (
     <section className="work">
       <div>
-        <div className="clock-row"><span className={game.current.turn() === 'b' ? 'clock on' : 'clock'}>Negras {formatClock(clock.b)}</span></div>
+        <div className="clock-row"><span className={game.current.turn() === 'b' ? 'clock on' : 'clock'}>Negras <Flap value={formatClock(clock.b)} tone={game.current.turn() === 'b' ? 'warn' : undefined} /></span></div>
         <div className="board-frame"><ChessgroundBoard position={fen} boardOrientation={role === 'b' ? 'black' : 'white'} movable={role && connected && game.current.turn() === role ? (role === 'w' ? 'white' : 'black') : false} onPieceDrop={drop} label="Partida por invitación" /></div>
-        <div className="clock-row"><span className={game.current.turn() === 'w' ? 'clock on' : 'clock'}>Blancas {formatClock(clock.w)}</span></div>
+        <div className="clock-row"><span className={game.current.turn() === 'w' ? 'clock on' : 'clock'}>Blancas <Flap value={formatClock(clock.w)} tone={game.current.turn() === 'w' ? 'warn' : undefined} /></span></div>
       </div>
       <div className="side-panel">
         <PageHead title="Jugar con otra persona" lede="Sin cuentas. El PeerServer local (localhost:9000, se arranca con npm run server) solo presenta los dos navegadores; la partida viaja directa entre ellos." />

@@ -9,20 +9,20 @@ related_targets: ["src/styles.css"]
 
 Scope: the whole web app (shell + Inicio, Análisis, Partidas, Repertorio, Entrenar, Jugar). Visitor mode: Operate. Desktop/laptop first; must still work at narrow widths.
 
-Audience/job: adult beginners (from ~200 ELO) studying their own games in long sessions; analyse a game, find where it was lost, file the lesson, drill it. Constraints: offline at runtime (no CDN, fonts bundled), Stockfish in a Worker, data local.
+Audience/job: adult beginners (from ~200 ELO) studying their own games in long evening sessions; analyse a game, find where it was lost, file the lesson, drill it. Constraints: offline at runtime (fonts bundled), Stockfish in a Worker, data local.
 
-Requested by user: implement En Croissant's analysis board, game report, game database and spaced-repetition repertoire, keep the trainer, and look professional.
+History: the first world ("Columna de ajedrez", newsprint) was replaced at the user's request ("cambia el color… usa impeccable, tira el design para yo elegir"); the user picked the split-flap challenger on the decision page.
 
 ## Direction contract
 
-THESIS: Every analysis is set like a newspaper chess column — diagram, caption and annotated game in column rhythm. Refuses the category default of charcoal panels with a neon accent and floating cards.
+THESIS: GodChess reads like a tournament hall's departures board: every figure that matters (evaluation, accuracy, counts, clocks) sits in split-flap cells that turn when the value changes. Refuses both the category's warm-charcoal Lichess clone and the previous newsprint page.
 
-OWN-WORLD: Cool grey newsprint ground (#e6e5e0), ink #161616 for the masthead band and rules, one spot red (#c8102e) reserved for mistakes/blunders, a teal-green (#1f6f5c) for correct/good states. Archivo with its width axis: condensed 900 caps for headlines and nameplate, normal width for UI; tabular figures everywhere. Visible column rules (1px ink) divide work areas; no rounded cards, no shadows. Board diagram: paper light squares, hatched dark squares like printed diagrams. Night edition: same system inverted on ink.
+OWN-WORLD: Steel-frame dark ground (#16181b, panels #1d2024, frame #2a2d31), flap black #0b0b0d cells with letter-white #f2f2f2 figures and a hairline split, steel light #a7aaaf secondary text, delay amber #ffb000 for "now/attention" (active tab, primary action, ? mistakes), cancel red for ?? blunders, signal green for correct states. Archivo condensed caps with wide tracking for labels and headings; normal-width Archivo for reading text. A daylight edition keeps the black flaps and masthead on a light steel ground.
 
-STORY: The visitor opens a game, sees the position as a printed diagram with its caption ("Juegan las blancas"), reads the game as a column (mainline bold, variations in parentheses, comments in italic), sees blunders in red with the engine's correction, and can save a line to the repertoire or drill it.
+STORY: The visitor opens a game and reads the position like a board in the hall: the engine figure flips as Stockfish deepens, blunders show in red like cancelled services, mistakes in amber like delays; the report's accuracies and the home agenda are flap counters.
 
-FIRST VIEWPORT: Black masthead 64px: condensed nameplate GODCHESS, tabs (Inicio, Análisis, Partidas, Repertorio, Entrenar, Jugar), date/engine status. Below, ruled columns: thin eval bar, board ~600px with caption rule beneath, notation column with kicker "Partida nº 0042", condensed headline of players, byline rule, the moves, accuracy figures and eval graph; right column engine lines (MultiPV 3), opening name and the primary action "Analizar partida completa".
+FIRST VIEWPORT: Black masthead with the GODCHESS nameplate set in flap tiles, condensed tabs with the active one amber-underlined. Analysis: eval bar, steel board, notation column, engine column whose line scores are flap cells; primary action amber.
 
-FORM: Columna de ajedrez (newspaper chess column), position 4 on the ordered grounded list; seed:8a27a2a304e62cbc. Signature move: the move tree typeset as column notation with inline parenthesised variations and the printed diagram caption. Raises: flat ink fields own shell regions; catalogue numbers for every game; visible grid rules; signed tabular figures.
+FORM: Panel de salidas (split-flap concourse), dealt challenger signals-instruments-split-flap-concourse chosen by the user over assigned grounded candidate 7 (tournament demonstration wall board); seed:209ff2ade8814717. Signature move: split-flap figure cells with a flip on change. Raises carried from declined challengers: catalogue numbers on every game; visible frame grid; states stamp rather than vanish.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

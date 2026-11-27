@@ -23,3 +23,10 @@ data/chess-openings/
 # Impeccable: capturas y bocetos de trabajo
 .impeccable/review/
 .impeccable/mocks/
+.impeccable/reference/
+
+# Stockfish multihilo: se copia desde node_modules (npm run engine:copy)
+public/engine/mt/
+
+# Datasets descargados (se regeneran los índices con scripts/)
+data/raw/

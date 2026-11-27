@@ -13,6 +13,8 @@ import { useEngineLines, type Line } from './useEngineLines';
 import { ImportPanel } from './ImportPanel';
 import { figurineLine, Toast, useToast } from '../../ui/kit';
 import { AutopsyPanel } from './AutopsyPanel';
+import { Flap } from '../../ui/Flap';
+import { estimateElo } from '../../chess/stats';
 import { XrayKey } from '../../ui/XrayKey';
 import { commentaryFor, moveLabel } from '../../training/autopsy';
 import { xrayHighlights } from '../../chess/tactics';
@@ -30,7 +32,7 @@ export function AnalysisView() {
   const [editing, setEditing] = useState(false);
   const [openings, setOpenings] = useState<Opening[] | null>(null);
   const toast = useToast();
-  const { status, lines, depth: engineDepth, nps, engine } = useEngineLines(node.fen, prefs.engineOn && !reporting, prefs.multipv);
+  const { status, lines, depth: engineDepth, nps, engine, threads } = useEngineLines(node.fen, prefs.engineOn && !reporting, prefs.multipv);
 
   useEffect(() => { loadOpenings().then(rows => { buildOpeningIndex(rows); setOpenings(rows); }).catch(() => setOpenings([])); }, []);
 
@@ -137,7 +139,6 @@ export function AnalysisView() {
     <div className="analysis">
       <div className={`evalbar ${orientation === 'black' ? 'flipped' : ''}`} role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(whiteShare)} aria-label={`Evaluación ${formatScore(evalScore)}`}>
         <i style={{ height: `${whiteShare}%` }} />
-        <span className={whiteShare >= 50 ? 'low' : 'high'}>{formatScore(evalScore)}</span>
       </div>
 
       <section className="board-col" aria-label="Tablero">
@@ -145,6 +146,7 @@ export function AnalysisView() {
           <ChessgroundBoard position={node.fen} boardOrientation={orientation} movable onPieceDrop={(from, to, promotion) => { play({ from, to, promotion }); }} lastMove={node.uci || undefined} arrows={arrows} highlight={xray} label={`Posición tras ${node.san || 'el inicio'}`} />
         </div>
         <div className="caption">
+          <Flap value={formatScore(evalScore)} className="caption-eval" label={`Evaluación ${formatScore(evalScore)}`} />
           <strong>{node.id === tree.rootId && tree.nodes[tree.rootId].fen === START_FEN ? 'Posición inicial' : `Juegan las ${turn === 'w' ? 'blancas' : 'negras'}`}</strong>
           <span>{node.id !== tree.rootId && <>Tras {moveLabel(node)} · </>}{opening ? `${opening.eco} · ${spanishOpening(opening.name)}` : node.classification ? CLASS_LABEL[node.classification] : 'fuera de teoría'}</span>
         </div>
@@ -201,11 +203,12 @@ export function AnalysisView() {
             <input type="checkbox" checked={prefs.engineOn} onChange={event => setPrefs({ engineOn: event.target.checked })} />
             <span>Stockfish 17.1</span>
           </label>
-          <span className="engine-meta">{engineStatus(status, Boolean(reporting))}{status === 'running' && engineDepth ? ` · prof. ${engineDepth}${nps ? ` · ${Math.round(nps / 1000)} kN/s` : ''}` : ''}</span>
+          <span className="engine-meta">{engineStatus(status, Boolean(reporting))}{status === 'running' && engineDepth ? ` · prof. ${engineDepth}${nps ? ` · ${Math.round(nps / 1000)} kN/s` : ''}` : ''}{status !== 'error' ? ` · ${threads} ${threads === 1 ? 'hilo' : 'hilos'}` : ''}</span>
           <select aria-label="Número de líneas" value={prefs.multipv} onChange={event => setPrefs({ multipv: Number(event.target.value) })}>
             {[1, 2, 3, 4, 5].map(value => <option key={value} value={value}>{value} {value === 1 ? 'línea' : 'líneas'}</option>)}
           </select>
         </div>
+        {prefs.engineOn && lines[0]?.wdl && <WdlBar wdl={lines[0].wdl} />}
         <ol className="lines" aria-live="off">
           {prefs.engineOn && status === 'running' && !lines.length && Array.from({ length: prefs.multipv }, (_, index) => <li className="line skeleton" key={index}><b /><span /></li>)}
           {lines.map(line => <EngineLine key={line.rank} line={line} startFen={node.fen} onPlay={playUci} figurines={prefs.figurines} />)}
@@ -218,9 +221,9 @@ export function AnalysisView() {
           <section className="report" aria-label="Informe de la partida">
             <h2 className="section-title">Informe</h2>
             <dl className="accuracy">
-              <div><dt>{white}</dt><dd>{report.white.accuracy.toFixed(1).replace('.', ',')}</dd><dd className="acc-note">precisión</dd></div>
-              <div><dt>{black}</dt><dd>{report.black.accuracy.toFixed(1).replace('.', ',')}</dd><dd className="acc-note">precisión</dd></div>
-              <div className="blunders"><dt>Errores graves</dt><dd>{report.white.blunders}<span>·</span>{report.black.blunders}</dd><dd className="acc-note">blancas · negras</dd></div>
+              <div><dt>{white}</dt><dd><Flap value={report.white.accuracy.toFixed(1).replace('.', ',')} /></dd><dd className="acc-note">precisión · nivel ≈ {estimateElo(report.white.acpl)}</dd></div>
+              <div><dt>{black}</dt><dd><Flap value={report.black.accuracy.toFixed(1).replace('.', ',')} /></dd><dd className="acc-note">precisión · nivel ≈ {estimateElo(report.black.acpl)}</dd></div>
+              <div className="blunders"><dt>Errores graves</dt><dd><Flap value={`${report.white.blunders} ${report.black.blunders}`} tone="bad" label={`${report.white.blunders} de blancas, ${report.black.blunders} de negras`} /></dd><dd className="acc-note">blancas · negras</dd></div>
             </dl>
             <EvalGraph report={report} tree={tree} current={current} onSelect={goTo} />
             <p className="acc-legend"><span className="key blunder" />?? error grave <span className="key mistake" />? error <span className="key-text">?! imprecisión ({report.white.inaccuracies + report.black.inaccuracies})</span></p>
@@ -231,7 +234,7 @@ export function AnalysisView() {
         <div className="actions">
           <div className="report-run">
             <button className="primary" onClick={runReport} disabled={Boolean(reporting) || status === 'error' || status === 'loading'}>
-              <Gauge size={18} /> {reporting ? `Analizando ${reporting.done} de ${reporting.total}…` : hasReport ? 'Repetir informe' : 'Analizar partida completa'}
+              <Gauge size={18} /> {reporting ? `Analizando ${reporting.done} de ${reporting.total}…` : hasReport ? 'Repetir informe' : 'Analizar partida'}
             </button>
             <select aria-label="Profundidad del informe" title="Profundidad de Stockfish por posición: 10, 14 o 18" value={depth} onChange={event => setDepth(Number(event.target.value))} disabled={Boolean(reporting)}>
               <option value={10}>Rápido</option>
@@ -260,11 +263,22 @@ function engineStatus(status: string, reporting: boolean) {
   return { loading: 'cargando…', ready: 'listo', running: 'analizando', off: 'en pausa', error: 'no disponible', over: 'fin de partida' }[status] ?? status;
 }
 
+/** Stockfish's win/draw/loss estimate: a clearer read than centipawns for a beginner. */
+function WdlBar({ wdl }: { wdl: [number, number, number] }) {
+  const [w, d, l] = wdl.map(value => Math.round(value / 10));
+  return (
+    <figure className="wdl" aria-label={`Ganan blancas ${w} %, tablas ${d} %, ganan negras ${l} %`}>
+      <div className="wdl-bar" aria-hidden="true"><i className="w" style={{ width: `${w}%` }} /><i className="d" style={{ width: `${d}%` }} /><i className="l" style={{ width: `${l}%` }} /></div>
+      <figcaption><span>Blancas {w} %</span><span>Tablas {d} %</span><span>Negras {l} %</span></figcaption>
+    </figure>
+  );
+}
+
 function EngineLine({ line, startFen, onPlay, figurines }: { line: Line; startFen: string; onPlay: (uci: string) => void; figurines: boolean }) {
   return (
     <li className="line">
       <button className="line-btn" onClick={() => line.uci[0] && onPlay(line.uci[0])} title="Jugar la primera jugada de esta línea">
-        <b className={(line.white.cp ?? 0) < 0 || (line.white.mate ?? 0) < 0 ? 'neg' : ''}>{formatScore(line.white)}</b>
+        <b><Flap value={formatScore(line.white)} tone={(line.white.cp ?? 0) < 0 || (line.white.mate ?? 0) < 0 ? 'dim' : undefined} /></b>
         <span>{figurines ? figurineLine(line.san, startFen) : line.san.join(' ')}</span>
       </button>
     </li>

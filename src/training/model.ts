@@ -1,8 +1,8 @@
 export type ErrorTag = 'pieza colgada'|'amenaza no vista'|'mate fallado'|'cambio mal calculado'|'rey expuesto'|'apuro de tiempo'|'otro';
 export type ErrorEntry = { id: string; createdAt: string; tag: ErrorTag; move?: string; fen?: string; severity: 1|2; source: 'game'|'drill' };
 import type { ReviewCard } from './repetition';
-export type TrainingState = { rating: number; xp: number; errors: Record<ErrorTag, number>; games: number; slowGames: number; visionAccuracy: number; mateInOne: number; puzzleAttempts: number; puzzleSolved: number; reviews: Record<string, ReviewCard> };
-export const defaultTraining: TrainingState = { rating: 800, xp: 0, errors: {'pieza colgada':0,'amenaza no vista':0,'mate fallado':0,'cambio mal calculado':0,'rey expuesto':0,'apuro de tiempo':0,'otro':0}, games:0, slowGames:0, visionAccuracy:0, mateInOne:0, puzzleAttempts:0, puzzleSolved:0, reviews:{} };
+export type TrainingState = { rating: number; xp: number; errors: Record<ErrorTag, number>; games: number; slowGames: number; visionAccuracy: number; mateInOne: number; puzzleAttempts: number; puzzleSolved: number; reviews: Record<string, ReviewCard>; botLevel: number; botGames: number };
+export const defaultTraining: TrainingState = { rating: 800, xp: 0, errors: {'pieza colgada':0,'amenaza no vista':0,'mate fallado':0,'cambio mal calculado':0,'rey expuesto':0,'apuro de tiempo':0,'otro':0}, games:0, slowGames:0, visionAccuracy:0, mateInOne:0, puzzleAttempts:0, puzzleSolved:0, reviews:{}, botLevel:250, botGames:0 };
 export function dominantError(errors: TrainingState['errors']): ErrorTag { return (Object.entries(errors).sort((a,b)=>b[1]-a[1])[0]?.[0] ?? 'pieza colgada') as ErrorTag; }
 export function weeklyFocus(state: TrainingState) { const tag = dominantError(state.errors); return { tag, drill: tag === 'pieza colgada' ? 'Seguridad de piezas' : tag === 'amenaza no vista' ? 'Escaneo de amenazas' : 'Táctica dirigida' }; }
 export function applyGameError(state: TrainingState, tag: ErrorTag, severity: 1|2): TrainingState { return { ...state, errors: { ...state.errors, [tag]: state.errors[tag] + severity }, xp: Math.max(0, state.xp - (severity === 2 ? 20 : 10)) }; }

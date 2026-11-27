@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
-import { EngineClient, type EngineLines } from '../../engine/client';
+import { sharedEngine, type EngineClient, type EngineLines } from '../../engine/client';
 import type { EngineInfo } from '../../engine/protocol';
 import { toWhiteView } from '../../chess/report';
 import type { Score } from '../../chess/tree';
 
 export type EngineStatus = 'loading' | 'ready' | 'running' | 'off' | 'error' | 'over';
-export type Line = { rank: number; score: Score; white: Score; depth: number; uci: string[]; san: string[] };
+/** wdl is White's win / draw / Black's win, in per mille. */
+export type Line = { rank: number; score: Score; white: Score; depth: number; uci: string[]; san: string[]; wdl?: [number, number, number] };
 
 export function pvToSan(fen: string, pv: string[], limit = 12) {
   const game = new Chess(fen);
@@ -21,15 +22,16 @@ export function pvToSan(fen: string, pv: string[], limit = 12) {
 export function useEngineLines(fen: string, enabled: boolean, multipv: number) {
   const engine = useRef<EngineClient | null>(null);
   const [status, setStatus] = useState<EngineStatus>('loading');
+  const [threads, setThreads] = useState(1);
   const [result, setResult] = useState<{ fen: string; depth: number; nps: number; lines: Line[] }>({ fen, depth: 0, nps: 0, lines: [] });
   const frame = useRef(0);
   const latest = useRef<EngineLines | null>(null);
 
   useEffect(() => {
-    const client = new EngineClient();
+    const client = sharedEngine();
     engine.current = client;
-    client.init().then(() => { client.fullStrength(); setStatus('ready'); }).catch(() => setStatus('error'));
-    return () => { cancelAnimationFrame(frame.current); client.quit(); engine.current = null; };
+    client.init().then(() => { client.fullStrength(); setThreads(client.threads); setStatus('ready'); }).catch(() => setStatus('error'));
+    return () => { cancelAnimationFrame(frame.current); client.stop(); engine.current = null; };
   }, []);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ export function useEngineLines(fen: string, enabled: boolean, multipv: number) {
         frame.current = 0;
         const snapshot = latest.current;
         if (!snapshot) return;
-        setResult({ fen, depth: snapshot.depth, nps: snapshot.nps, lines: snapshot.lines.map((info: EngineInfo) => ({ rank: info.multipv ?? 1, score: info.score, white: toWhiteView(info.score, fen), depth: info.depth, uci: info.pv, san: pvToSan(fen, info.pv) })) });
+        setResult({ fen, depth: snapshot.depth, nps: snapshot.nps, lines: snapshot.lines.map((info: EngineInfo) => ({ rank: info.multipv ?? 1, score: info.score, white: toWhiteView(info.score, fen), depth: info.depth, uci: info.pv, san: pvToSan(fen, info.pv), wdl: info.wdl ? (fen.split(' ')[1] === 'b' ? [info.wdl[2], info.wdl[1], info.wdl[0]] : info.wdl) : undefined })) });
       });
     });
     return () => { cancelAnimationFrame(frame.current); frame.current = 0; };
@@ -57,5 +59,5 @@ export function useEngineLines(fen: string, enabled: boolean, multipv: number) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen, enabled, multipv, status === 'loading' || status === 'error']);
 
-  return { status, ...result, lines: result.fen === fen ? result.lines : [], engine };
+  return { status, threads, ...result, lines: result.fen === fen ? result.lines : [], engine };
 }

@@ -2,8 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 /** Keep long-lived third-party code cacheable across app updates. */
+// Cross-origin isolation enables SharedArrayBuffer, which multi-threaded Stockfish needs.
+// Production hosting must send the same two headers; without them the app falls back to one thread.
+const isolation = { 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' };
+
 export default defineConfig({
   plugins: [react()],
+  server: { headers: isolation },
+  preview: { headers: isolation },
   build: {
     rollupOptions: {
       output: {

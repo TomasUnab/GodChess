@@ -24,6 +24,8 @@ type Props = {
   animationDuration?: number;
   label?: string;
   className?: string;
+  /** Bump to put the pieces back on `position` after a move that should not stick (scan mode). */
+  revision?: number;
 };
 
 // SVG presentation attributes cannot read CSS variables; the diagram is identical in both editions.
@@ -48,7 +50,7 @@ function boardState(fen: string, movable: Props['movable']) {
  * React adapter: chess.js stays authoritative for legality while Chessground
  * owns the board UX. Legal destinations are recomputed for every position.
  */
-export function ChessgroundBoard({ position = 'start', boardOrientation = 'white', movable, arePiecesDraggable, onPieceDrop, onSquareClick, lastMove, arrows, highlight, animationDuration = 180, label, className }: Props) {
+export function ChessgroundBoard({ position = 'start', boardOrientation = 'white', movable, arePiecesDraggable, onPieceDrop, onSquareClick, lastMove, arrows, highlight, animationDuration = 180, label, className, revision = 0 }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
   const callback = useRef({ onPieceDrop, onSquareClick });
@@ -94,7 +96,7 @@ export function ChessgroundBoard({ position = 'start', boardOrientation = 'white
     };
     api.current.set(config);
     if (!lastMove) api.current.set({ lastMove: undefined });
-  }, [position, boardOrientation, canMove, lastMove, animationDuration]);
+  }, [position, boardOrientation, canMove, lastMove, animationDuration, revision]);
 
   useEffect(() => {
     if (!api.current) return;

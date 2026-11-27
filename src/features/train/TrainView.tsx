@@ -4,20 +4,23 @@ import { Check, Eye, Lightbulb, RotateCcw, Trash2 } from 'lucide-react';
 import { useStore, type TrainSection } from '../../app/store';
 import { ChessgroundBoard } from '../../ui/ChessgroundBoard';
 import { PageHead, Stat, SubNav } from '../../ui/kit';
-import { EngineClient } from '../../engine/client';
+import { sharedEngine, type EngineClient } from '../../engine/client';
 import { puzzleFor } from '../../training/puzzles';
-import { chooseDuePuzzle, loadPuzzleCatalog, quickCalibration } from '../../training/catalog';
+import { chooseDuePuzzle, loadPuzzleCatalog, loadPuzzleRows, preparePuzzle, quickCalibration } from '../../training/catalog';
 import { matchesPuzzleMove, type PreparedPuzzle } from '../../training/lichess';
-import { validateCct } from '../../training/cct';
-import { addCctAttempt, listTrainingLog, type TrainingLogEntry } from '../../storage/local';
+import { listTrainingLog, type TrainingLogEntry } from '../../storage/local';
 import { mateLibrary, mateThemes, type MateTheme } from '../../training/mates';
 import { phaseNames, trainingPath } from '../../training/path';
 import { dueReviews } from '../../training/repetition';
 import { reviewId, type MyPuzzle } from '../../training/autopsy';
+import { GuessView } from './GuessView';
+import { OriginPanel } from './OriginPanel';
+import { CctScan } from './CctScan';
+import { BlitzView } from './BlitzView';
 import type { ErrorTag } from '../../training/model';
 
 const sections: { id: TrainSection; label: string }[] = [
-  { id: 'path', label: 'Camino' }, { id: 'diagnosis', label: 'Diagnóstico' }, { id: 'puzzles', label: 'Puzzles CCT' }, { id: 'mistakes', label: 'Mis errores' },
+  { id: 'path', label: 'Camino' }, { id: 'diagnosis', label: 'Diagnóstico' }, { id: 'puzzles', label: 'Puzzles CCT' }, { id: 'blitz', label: 'Contrarreloj' }, { id: 'mistakes', label: 'Mis errores' }, { id: 'guess', label: 'Adivina la jugada' },
   { id: 'vision', label: 'Visión' }, { id: 'mates', label: 'Mates' }, { id: 'journal', label: 'Diario' },
 ];
 
@@ -29,7 +32,7 @@ export function TrainView() {
   return (
     <div className="page train">
       <SubNav label="Entrenamiento" value={train === 'lesson' ? 'path' : train} onChange={setTrain} items={sections.map(item => item.id === 'puzzles' ? { ...item, count: due } : item.id === 'mistakes' ? { ...item, count: mineDue } : item)} />
-      {train === 'path' ? <Path /> : train === 'lesson' ? <GuidedLesson /> : train === 'diagnosis' ? <Diagnosis /> : train === 'puzzles' ? <Puzzles /> : train === 'mistakes' ? <MyMistakes /> : train === 'vision' ? <Vision /> : train === 'mates' ? <Mates /> : <Journal />}
+      {train === 'path' ? <Path /> : train === 'lesson' ? <GuidedLesson /> : train === 'diagnosis' ? <Diagnosis /> : train === 'puzzles' ? <Puzzles /> : train === 'blitz' ? <BlitzView /> : train === 'mistakes' ? <MyMistakes /> : train === 'guess' ? <GuessView /> : train === 'vision' ? <Vision /> : train === 'mates' ? <Mates /> : <Journal />}
     </div>
   );
 }
@@ -119,7 +122,7 @@ function Diagnosis() {
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const [started] = useState(Date.now());
   const { setTrain, calibrate, training } = useStore();
-  useEffect(() => { loadPuzzleCatalog().then(rows => { const catalog = rows.filter(row => row.solutionUci.length > 0).slice(0, 6); if (catalog.length === 6) setPuzzles(catalog); }).catch(() => undefined); }, []);
+  useEffect(() => { loadPuzzleCatalog(6).then(catalog => { if (catalog.length === 6) setPuzzles(catalog); }).catch(() => undefined); }, []);
   const current = puzzles[step];
   const answer = (from: string, to: string, promotion?: string) => {
     if (!current || feedback) return;
@@ -155,68 +158,53 @@ function Diagnosis() {
   );
 }
 
-function CctInputs({ fen, onValid }: { fen: string; onValid: () => void }) {
-  const [answers, setAnswers] = useState({ checks: '', captures: '', threats: '' });
-  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-  const fail = useStore(s => s.recordCctFailure);
-  const validate = () => {
-    const parsed = { checks: answers.checks.split(/[\s,]+/).filter(Boolean), captures: answers.captures.split(/[\s,]+/).filter(Boolean), threats: answers.threats.split(/[\s,]+/).filter(Boolean) };
-    const result = validateCct(fen, parsed);
-    void addCctAttempt({ puzzleId: fen.slice(0, 12), valid: result.valid, ...parsed, createdAt: new Date().toISOString() }).catch(() => undefined);
-    if (result.valid) { setMessage({ ok: true, text: 'Escaneo correcto · tablero desbloqueado' }); onValid(); }
-    else { setMessage({ ok: false, text: 'Escaneo incompleto · se aplica la penalización doble' }); fail(); }
-  };
-  return (
-    <div className="cct">
-      {([['checks', 'Jaques', 'e2e4 d1h5'], ['captures', 'Capturas', 'b1c3'], ['threats', 'Amenazas del rival', 'pieza atacada']] as const).map(([key, label, placeholder]) => (
-        <label className="field" key={key}>{label}<input value={answers[key]} onChange={event => setAnswers(value => ({ ...value, [key]: event.target.value }))} placeholder={placeholder} spellCheck={false} /></label>
-      ))}
-      <button className="secondary" onClick={validate}>Validar escaneo</button>
-      {message && <p className={`verdict-line ${message.ok ? 'good' : 'bad'}`} role="status">{message.text}</p>}
-    </div>
-  );
-}
-
 function Puzzles() {
-  const { scans, setScan, resetScan, candidate, setCandidate, completeScan, training, recordPuzzleAttempt, useHint: spendHint } = useStore();
+  const { completeScan, training, recordPuzzleAttempt, useHint: spendHint } = useStore();
   const fallback = puzzleFor();
   const [puzzle, setPuzzle] = useState<PreparedPuzzle | null>(null);
   const [solved, setSolved] = useState(false);
-  const [cctValid, setCctValid] = useState(false);
+  const [scanned, setScanned] = useState<null | boolean>(null);
   const [hint, setHint] = useState(0);
   const [round, setRound] = useState(0);
-  useEffect(() => { loadPuzzleCatalog().then(catalog => setPuzzle(chooseDuePuzzle(catalog, dueReviews(training.reviews).map(card => card.puzzleId), 'pieza', training.rating))).catch(() => setPuzzle(null)); }, [training.rating, round]);
-  const scanned = Object.values(scans).every(Boolean);
-  const ready = scanned && cctValid && candidate.trim().length > 1 && solved;
+  useEffect(() => { loadPuzzleRows().then(rows => { const row = chooseDuePuzzle(rows, dueReviews(training.reviews).map(card => card.puzzleId), 'pieza', training.rating); setPuzzle(row ? preparePuzzle(row) : null); }).catch(() => setPuzzle(null)); }, [training.rating, round]);
   const theme = (puzzle?.themes[0] ?? fallback.theme).replaceAll('_', ' ');
   const fen = puzzle?.presentedFen ?? fallback.fen;
-  const reset = () => { resetScan(); setSolved(false); setCctValid(false); setHint(0); };
+  const source = puzzle ? `Lichess · ${puzzle.rating} · ${theme}` : `Puzzle de respaldo · ${theme}`;
+  const reset = () => { setScanned(null); setSolved(false); setHint(0); };
+  const next = () => { completeScan(); reset(); setRound(r => r + 1); useStore.getState().setTrain('puzzles'); };
+  const extras = (
+    <>
+      <div className="hints">
+        {hint === 0 && <button className="ghost" onClick={() => { setHint(1); spendHint(1); }}>Pista 1 · ver el motivo (−5 XP)</button>}
+        {hint >= 1 && <p>Empieza por enumerar todos tus jaques y capturas antes de buscar una jugada tranquila.</p>}
+        {hint === 1 && <button className="ghost" onClick={() => { setHint(2); spendHint(2); }}>Pista 2 · reducir opciones (−10 XP)</button>}
+        {hint === 2 && <p>Compara primero las jugadas que obligan una respuesta del rival.</p>}
+      </div>
+      <OriginPanel puzzleId={puzzle?.puzzleId} reveal={solved} />
+    </>
+  );
+
+  if (scanned === null) return (
+    <section className="work">
+      <CctScan key={`${fen}-${round}`} fen={fen} puzzleId={puzzle?.puzzleId ?? fen.slice(0, 12)} caption={source} onDone={clean => setScanned(clean)} aside={extras} />
+    </section>
+  );
+
   return (
     <section className="work">
       <div>
-        <PuzzleBoard puzzle={puzzle} canMove={scanned} onSolved={() => { setSolved(true); if (puzzle) recordPuzzleAttempt(true, puzzle.puzzleId, puzzle.rating, puzzle.solutionUci[0]); }} />
-        <div className="caption"><strong>{scanned ? `Juegan las ${fen.split(' ')[1] === 'b' ? 'negras' : 'blancas'}` : 'Tablero bloqueado hasta el escaneo'}</strong><span>{puzzle ? `Lichess · ${puzzle.rating}` : 'Puzzle de respaldo'} · {theme}</span></div>
+        <PuzzleBoard puzzle={puzzle} canMove={!solved} onSolved={() => { setSolved(true); if (puzzle) recordPuzzleAttempt(true, puzzle.puzzleId, puzzle.rating, puzzle.solutionUci[0]); }} />
+        <div className="caption"><strong>{solved ? 'Resuelto' : `Juegan las ${fen.split(' ')[1] === 'b' ? 'negras' : 'blancas'}`}</strong><span>{source}</span></div>
       </div>
       <div className="side-panel">
-        <h1 className="side-title">Escanea antes de mover</h1>
-        <p>Jaques, capturas y amenazas (CCT). Escribe cada lista en UCI o SAN y marca las tres preguntas: entonces se desbloquea el tablero.</p>
-        <CctInputs key={`${fen}-${round}`} fen={fen} onValid={() => setCctValid(true)} />
-        <ol className="scan-list">
-          {([['checks', '¿Qué jaques tengo?'], ['captures', '¿Qué capturas son posibles?'], ['threats', '¿Qué amenaza el rival?']] as const).map(([key, label]) => (
-            <li key={key}><button className={`scan ${scans[key] ? 'done' : ''}`} aria-pressed={scans[key]} onClick={() => setScan(key)}><span className="tick">{scans[key] ? <Check size={14} /> : null}</span>{label}</button></li>
-          ))}
-        </ol>
-        <label className="field">Tu jugada candidata<input value={candidate} onChange={event => setCandidate(event.target.value)} placeholder="Escríbela antes de mover" /></label>
-        <div className="hints">
-          {hint === 0 && <button className="ghost" onClick={() => { setHint(1); spendHint(1); }}>Pista 1 · ver el motivo (−5 XP)</button>}
-          {hint >= 1 && <p>Empieza por enumerar todos tus jaques y capturas antes de buscar una jugada tranquila.</p>}
-          {hint === 1 && <button className="ghost" onClick={() => { setHint(2); spendHint(2); }}>Pista 2 · reducir opciones (−10 XP)</button>}
-          {hint === 2 && <p>Compara primero las jugadas que obligan una respuesta del rival.</p>}
-        </div>
+        <h1 className="side-title">{solved ? 'Bien visto' : 'Ahora, tu jugada'}</h1>
+        <p className={`verdict-line ${scanned ? 'good' : 'bad'}`}>{scanned ? 'Escaneo completo: viste todos los jaques, capturas y amenazas.' : 'Escaneo incompleto: se aplica la penalización doble. Las flechas rojas eran lo que faltó.'}</p>
+        <p>{solved ? 'Puzzle resuelto. Mira la partida de la que salió o pasa al siguiente.' : 'Con el escaneo hecho, juega en el tablero la mejor jugada. Si fallas, te dice qué proponía el motor.'}</p>
         <div className="row">
-          <button className="primary" disabled={!ready} onClick={() => { completeScan(); reset(); setRound(r => r + 1); useStore.getState().setTrain('puzzles'); }}>{solved ? 'Registrar y seguir' : 'Resuelve el puzzle'}</button>
-          <button className="ghost" onClick={reset}><RotateCcw size={16} /> Reiniciar</button>
+          <button className="primary" disabled={!solved} onClick={next}>{solved ? 'Siguiente puzzle' : 'Resuelve el puzzle'}</button>
+          <button className="ghost" onClick={reset}><RotateCcw size={16} /> Repetir el escaneo</button>
         </div>
+        {extras}
       </div>
     </section>
   );
@@ -229,7 +217,7 @@ function PuzzleBoard({ puzzle, canMove, onSolved }: { puzzle: PreparedPuzzle | n
   const [index, setIndex] = useState(0);
   const engine = useRef<EngineClient | null>(null);
   const [engineReady, setEngineReady] = useState(false);
-  useEffect(() => { const client = new EngineClient(); engine.current = client; client.init().then(() => { client.setStrength(5, 1320, 200); setEngineReady(true); }).catch(() => setEngineReady(false)); return () => client.quit(); }, []);
+  useEffect(() => { const client = sharedEngine(); engine.current = client; client.init().then(() => { client.setStrength(5, 1320, 200); setEngineReady(true); }).catch(() => setEngineReady(false)); return () => client.stop(); }, []);
   useEffect(() => { setFen(puzzle?.presentedFen ?? 'start'); setIndex(0); setMessage(null); setLast(puzzle?.opponentMoveUci); }, [puzzle]);
   const drop = (from: string, to: string, promotion?: string) => {
     if (!canMove || !puzzle) return;

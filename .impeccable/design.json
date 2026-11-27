@@ -1,397 +1,931 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-26T23:33:49.701Z",
+  "generatedAt": "2026-11-27T00:19:36.006297+00:00",
   "title": "Design System: GodChess",
   "extensions": {
     "colorMeta": {
-      "newsprint": {
+      "steel-ground": {
         "role": "neutral",
-        "displayName": "Papel de periódico",
-        "canonical": "#e6e5e0",
+        "displayName": "Suelo de acero",
+        "canonical": "#16181b",
         "tonalRamp": [
-          "#151514",
-          "#1f1f1d",
-          "#3a3935",
-          "#5c5a54",
-          "#b7b4ab",
-          "#dddcd6",
-          "#e6e5e0",
-          "#f4f3ef"
+          "#060607",
+          "#0a0b0c",
+          "#0e1012",
+          "#131417",
+          "#454649",
+          "#7f8082",
+          "#b9babb",
+          "#e8e8e8"
         ]
       },
-      "newsprint-shade": {
+      "steel-ground-raised": {
         "role": "neutral",
-        "displayName": "Sombra de papel",
-        "canonical": "#dddcd6",
+        "displayName": "Steel ground raised",
+        "canonical": "#1f2226",
         "tonalRamp": [
-          "#1f1f1d",
-          "#3a3935",
-          "#5c5a54",
-          "#97948b",
-          "#b7b4ab",
-          "#d3d0c7",
-          "#dddcd6",
-          "#ecebe6"
+          "#08080a",
+          "#0e0f11",
+          "#141619",
+          "#1a1d20",
+          "#4c4e51",
+          "#848588",
+          "#bcbdbe",
+          "#e9e9e9"
         ]
       },
-      "sheet": {
+      "steel-well": {
         "role": "neutral",
-        "displayName": "Hoja",
-        "canonical": "#f4f3ef",
+        "displayName": "Steel well",
+        "canonical": "#0f1113",
         "tonalRamp": [
-          "#232321",
-          "#3d3b37",
-          "#5c5a54",
-          "#97948b",
-          "#cfcdc6",
-          "#e6e5e0",
-          "#f4f3ef",
-          "#fbfaf8"
+          "#040405",
+          "#070809",
+          "#0a0b0c",
+          "#0d0e10",
+          "#3f4142",
+          "#7b7c7d",
+          "#b7b8b8",
+          "#e7e7e7"
         ]
       },
-      "ink": {
+      "letter-white": {
+        "role": "neutral",
+        "displayName": "Blanco de letrero",
+        "canonical": "#f2f2f2",
+        "tonalRamp": [
+          "#3c3c3c",
+          "#6d6d6d",
+          "#9d9d9d",
+          "#cecece",
+          "#f5f5f5",
+          "#f8f8f8",
+          "#fbfbfb",
+          "#fefefe"
+        ]
+      },
+      "letter-white-hover": {
+        "role": "neutral",
+        "displayName": "Letter white hover",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#404040",
+          "#737373",
+          "#a6a6a6",
+          "#d9d9d9",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "steel-light": {
+        "role": "neutral",
+        "displayName": "Steel light",
+        "canonical": "#c4c6ca",
+        "tonalRamp": [
+          "#313232",
+          "#58595b",
+          "#7f8183",
+          "#a7a8ac",
+          "#d0d1d5",
+          "#dfe0e2",
+          "#edeeef",
+          "#f9f9fa"
+        ]
+      },
+      "steel-muted": {
+        "role": "neutral",
+        "displayName": "Steel muted",
+        "canonical": "#a7aaaf",
+        "tonalRamp": [
+          "#2a2a2c",
+          "#4b4c4f",
+          "#6d6e72",
+          "#8e9095",
+          "#b9bbbf",
+          "#cfd0d3",
+          "#e5e6e7",
+          "#f6f6f7"
+        ]
+      },
+      "steel-rule": {
+        "role": "neutral",
+        "displayName": "Steel rule",
+        "canonical": "#4a4e55",
+        "tonalRamp": [
+          "#121415",
+          "#212326",
+          "#303337",
+          "#3f4248",
+          "#6e7177",
+          "#9b9ea2",
+          "#c9cacc",
+          "#ededee"
+        ]
+      },
+      "steel-rule-soft": {
+        "role": "neutral",
+        "displayName": "Steel rule soft",
+        "canonical": "#2c3035",
+        "tonalRamp": [
+          "#0b0c0d",
+          "#141618",
+          "#1d1f22",
+          "#25292d",
+          "#56595d",
+          "#8b8d90",
+          "#c0c1c2",
+          "#eaeaeb"
+        ]
+      },
+      "steel-frame": {
+        "role": "neutral",
+        "displayName": "Marco de acero",
+        "canonical": "#2a2d31",
+        "tonalRamp": [
+          "#0a0b0c",
+          "#131416",
+          "#1b1d20",
+          "#24262a",
+          "#55575a",
+          "#8a8c8e",
+          "#bfc0c1",
+          "#eaeaea"
+        ]
+      },
+      "delay-amber": {
         "role": "primary",
-        "displayName": "Tinta de columna",
-        "canonical": "#161616",
+        "displayName": "Ámbar de retraso",
+        "canonical": "#ffb000",
+        "tonalRamp": [
+          "#402c00",
+          "#734f00",
+          "#a67200",
+          "#d99600",
+          "#ffc033",
+          "#ffd473",
+          "#ffe7b2",
+          "#fff7e6"
+        ]
+      },
+      "delay-amber-hover": {
+        "role": "primary",
+        "displayName": "Delay amber hover",
+        "canonical": "#ffc233",
+        "tonalRamp": [
+          "#40300d",
+          "#735717",
+          "#a67e21",
+          "#d9a52b",
+          "#ffce5c",
+          "#ffdd8f",
+          "#ffedc2",
+          "#fff9eb"
+        ]
+      },
+      "flap-black": {
+        "role": "neutral",
+        "displayName": "Negro de paleta",
+        "canonical": "#0b0b0d",
+        "tonalRamp": [
+          "#030303",
+          "#050506",
+          "#070708",
+          "#09090b",
+          "#3c3c3d",
+          "#79797a",
+          "#b6b6b6",
+          "#e7e7e7"
+        ]
+      },
+      "cancel-red": {
+        "role": "secondary",
+        "displayName": "Rojo de cancelación",
+        "canonical": "#ff4d5a",
+        "tonalRamp": [
+          "#401316",
+          "#732328",
+          "#a6323a",
+          "#d9414c",
+          "#ff717b",
+          "#ff9da4",
+          "#ffcace",
+          "#ffedee"
+        ]
+      },
+      "signal-green": {
+        "role": "secondary",
+        "displayName": "Verde de señal",
+        "canonical": "#3ccf6e",
+        "tonalRamp": [
+          "#0f341c",
+          "#1b5d31",
+          "#278748",
+          "#33b05e",
+          "#63d98b",
+          "#94e5af",
+          "#c4f1d4",
+          "#ecfaf0"
+        ]
+      },
+      "graph-white": {
+        "role": "neutral",
+        "displayName": "Graph white",
+        "canonical": "#d9dadc",
+        "tonalRamp": [
+          "#363637",
+          "#626263",
+          "#8d8e8f",
+          "#b8b9bb",
+          "#e1e1e3",
+          "#eaebec",
+          "#f4f4f4",
+          "#fbfbfc"
+        ]
+      },
+      "wdl-draw": {
+        "role": "neutral",
+        "displayName": "Wdl draw",
+        "canonical": "#5b5e63",
+        "tonalRamp": [
+          "#171819",
+          "#292a2d",
+          "#3b3d40",
+          "#4d5054",
+          "#7c7e82",
+          "#a5a6a9",
+          "#cecfd0",
+          "#efefef"
+        ]
+      },
+      "day-ground": {
+        "role": "neutral",
+        "displayName": "Day ground",
+        "canonical": "#e4e5e3",
+        "tonalRamp": [
+          "#393939",
+          "#676766",
+          "#949594",
+          "#c2c3c1",
+          "#e9eae9",
+          "#f0f1f0",
+          "#f7f7f7",
+          "#fcfcfc"
+        ]
+      },
+      "day-ground-raised": {
+        "role": "neutral",
+        "displayName": "Day ground raised",
+        "canonical": "#d6d8d7",
+        "tonalRamp": [
+          "#363636",
+          "#606161",
+          "#8b8c8c",
+          "#b6b8b7",
+          "#dee0df",
+          "#e8eae9",
+          "#f3f3f3",
+          "#fbfbfb"
+        ]
+      },
+      "day-well": {
+        "role": "neutral",
+        "displayName": "Day well",
+        "canonical": "#f4f5f4",
+        "tonalRamp": [
+          "#3d3d3d",
+          "#6e6e6e",
+          "#9f9f9f",
+          "#cfd0cf",
+          "#f6f7f6",
+          "#f9faf9",
+          "#fcfcfc",
+          "#fefefe"
+        ]
+      },
+      "day-ink-hover": {
+        "role": "neutral",
+        "displayName": "Day ink hover",
+        "canonical": "#000000",
         "tonalRamp": [
           "#000000",
-          "#161616",
-          "#2b2a27",
-          "#3d3b37",
-          "#5c5a54",
-          "#9d9a92",
-          "#c9c7c0",
-          "#e6e5e0"
+          "#000000",
+          "#000000",
+          "#000000",
+          "#333333",
+          "#737373",
+          "#b2b2b2",
+          "#e6e6e6"
         ]
       },
-      "ink-secondary": {
+      "day-ink-secondary": {
         "role": "neutral",
-        "displayName": "Tinta segunda",
-        "canonical": "#3d3b37"
-      },
-      "ink-tertiary": {
-        "role": "neutral",
-        "displayName": "Tinta tercera",
-        "canonical": "#5c5a54"
-      },
-      "rule-soft": {
-        "role": "neutral",
-        "displayName": "Filete suave",
-        "canonical": "#b7b4ab"
-      },
-      "spot-red": {
-        "role": "secondary",
-        "displayName": "Rojo de imprenta",
-        "canonical": "#c8102e",
+        "displayName": "Day ink secondary",
+        "canonical": "#33363a",
         "tonalRamp": [
-          "#3d0710",
-          "#6b0c1c",
-          "#9a0f26",
-          "#c8102e",
-          "#e0465c",
-          "#ff6b6b",
-          "#f7a9b2",
-          "#fbdde1"
+          "#0d0e0e",
+          "#17181a",
+          "#212326",
+          "#2b2e31",
+          "#5c5e61",
+          "#8f9093",
+          "#c2c3c4",
+          "#ebebeb"
         ]
       },
-      "warn-amber": {
-        "role": "secondary",
-        "displayName": "Ámbar de corrección",
-        "canonical": "#8a5a00",
+      "day-ink-muted": {
+        "role": "neutral",
+        "displayName": "Day ink muted",
+        "canonical": "#565a60",
         "tonalRamp": [
-          "#2e1e00",
-          "#4f3400",
-          "#6e4800",
-          "#8a5a00",
-          "#b27a1c",
-          "#e3a84a",
-          "#f0cd92",
-          "#f8e8cc"
+          "#161618",
+          "#27282b",
+          "#383a3e",
+          "#494c52",
+          "#787b80",
+          "#a2a4a8",
+          "#cccecf",
+          "#eeeeef"
         ]
       },
-      "good-teal": {
-        "role": "tertiary",
-        "displayName": "Verde azulado de acierto",
+      "day-rule-soft": {
+        "role": "neutral",
+        "displayName": "Day rule soft",
+        "canonical": "#b9bcc0",
+        "tonalRamp": [
+          "#2e2f30",
+          "#535556",
+          "#787a7d",
+          "#9da0a3",
+          "#c7c9cd",
+          "#d8dadc",
+          "#eaebec",
+          "#f8f8f9"
+        ]
+      },
+      "day-cancel-red": {
+        "role": "secondary",
+        "displayName": "Day cancel red",
+        "canonical": "#b00020",
+        "tonalRamp": [
+          "#2c0008",
+          "#4f000e",
+          "#720015",
+          "#96001b",
+          "#c0334d",
+          "#d47384",
+          "#e7b2bc",
+          "#f7e6e9"
+        ]
+      },
+      "day-signal-green": {
+        "role": "secondary",
+        "displayName": "Day signal green",
+        "canonical": "#1d7a43",
+        "tonalRamp": [
+          "#071e11",
+          "#0d371e",
+          "#134f2c",
+          "#196839",
+          "#4a9569",
+          "#83b698",
+          "#bbd7c7",
+          "#e8f2ec"
+        ]
+      },
+      "day-delay-amber": {
+        "role": "secondary",
+        "displayName": "Day delay amber",
+        "canonical": "#8a5d00",
+        "tonalRamp": [
+          "#221700",
+          "#3e2a00",
+          "#5a3c00",
+          "#754f00",
+          "#a17d33",
+          "#bfa673",
+          "#dcceb2",
+          "#f3efe6"
+        ]
+      },
+      "board-steel-light": {
+        "role": "board",
+        "displayName": "Board steel light",
+        "canonical": "#e6e7e9",
+        "tonalRamp": [
+          "#3a3a3a",
+          "#676869",
+          "#969697",
+          "#c4c4c6",
+          "#ebeced",
+          "#f1f2f3",
+          "#f8f8f8",
+          "#fcfdfd"
+        ]
+      },
+      "board-steel-dark": {
+        "role": "board",
+        "displayName": "Board steel dark",
+        "canonical": "#7d838b",
+        "tonalRamp": [
+          "#1f2123",
+          "#383b3f",
+          "#51555a",
+          "#6a6f76",
+          "#979ca2",
+          "#b8bbbf",
+          "#d8dadc",
+          "#f2f3f3"
+        ]
+      },
+      "board-diagram-light": {
+        "role": "board",
+        "displayName": "Board diagram light",
+        "canonical": "#f7f6f1",
+        "tonalRamp": [
+          "#3e3e3c",
+          "#6f6f6c",
+          "#a1a09d",
+          "#d2d1cd",
+          "#f9f8f4",
+          "#fbfaf7",
+          "#fdfcfb",
+          "#fefefe"
+        ]
+      },
+      "board-diagram-hatch": {
+        "role": "board",
+        "displayName": "Board diagram hatch",
+        "canonical": "#5a574f",
+        "tonalRamp": [
+          "#161614",
+          "#282724",
+          "#3a3933",
+          "#4c4a43",
+          "#7b7972",
+          "#a4a39e",
+          "#cecdca",
+          "#eeeeed"
+        ]
+      },
+      "board-diagram-hatch-ground": {
+        "role": "board",
+        "displayName": "Board diagram hatch ground",
+        "canonical": "#c9c5b9",
+        "tonalRamp": [
+          "#32312e",
+          "#5a5953",
+          "#838078",
+          "#aba79d",
+          "#d4d1c7",
+          "#e1dfd8",
+          "#efeeea",
+          "#faf9f8"
+        ]
+      },
+      "board-ground": {
+        "role": "board",
+        "displayName": "Board ground",
+        "canonical": "#f4f3ef",
+        "tonalRamp": [
+          "#3d3d3c",
+          "#6e6d6c",
+          "#9f9e9b",
+          "#cfcfcb",
+          "#f6f5f2",
+          "#f9f8f6",
+          "#fcfbfa",
+          "#fefefd"
+        ]
+      },
+      "board-coord-ink": {
+        "role": "board",
+        "displayName": "Board coord ink",
+        "canonical": "#2b2a27",
+        "tonalRamp": [
+          "#0b0a0a",
+          "#131312",
+          "#1c1b19",
+          "#252421",
+          "#555552",
+          "#8a8a88",
+          "#bfbfbe",
+          "#eaeae9"
+        ]
+      },
+      "board-ink": {
+        "role": "board",
+        "displayName": "Board ink",
+        "canonical": "#161616",
+        "tonalRamp": [
+          "#060606",
+          "#0a0a0a",
+          "#0e0e0e",
+          "#131313",
+          "#454545",
+          "#7f7f7f",
+          "#b9b9b9",
+          "#e8e8e8"
+        ]
+      },
+      "board-diagram-lastmove": {
+        "role": "board",
+        "displayName": "Board diagram lastmove",
         "canonical": "#1f6f5c",
         "tonalRamp": [
-          "#0a2620",
-          "#123f34",
-          "#195748",
-          "#1f6f5c",
-          "#3a9a82",
-          "#5cc4a8",
-          "#a3dccb",
-          "#d8f0e9"
+          "#081c17",
+          "#0e3229",
+          "#14483c",
+          "#1a5e4e",
+          "#4c8c7d",
+          "#84b0a5",
+          "#bcd4ce",
+          "#e9f1ef"
         ]
       },
-      "mast": {
-        "role": "neutral",
-        "displayName": "Mancheta",
-        "canonical": "#161616"
+      "board-check-red": {
+        "role": "board",
+        "displayName": "Board check red",
+        "canonical": "#c8102e",
+        "tonalRamp": [
+          "#32040c",
+          "#5a0715",
+          "#820a1e",
+          "#aa0e27",
+          "#d34058",
+          "#e17c8c",
+          "#eeb7c0",
+          "#fae7ea"
+        ]
       },
-      "mast-ink": {
-        "role": "neutral",
-        "displayName": "Texto de mancheta",
-        "canonical": "#e6e5e0"
+      "board-wood-light": {
+        "role": "board",
+        "displayName": "Board wood light",
+        "canonical": "#f0d9b5",
+        "tonalRamp": [
+          "#3c362d",
+          "#6c6251",
+          "#9c8d76",
+          "#ccb89a",
+          "#f3e1c4",
+          "#f7ead6",
+          "#faf4e9",
+          "#fefbf8"
+        ]
       },
-      "mast-muted": {
-        "role": "neutral",
-        "displayName": "Gris de mancheta",
-        "canonical": "#a9a79f"
+      "board-wood-dark": {
+        "role": "board",
+        "displayName": "Board wood dark",
+        "canonical": "#b58863",
+        "tonalRamp": [
+          "#2d2219",
+          "#513d2d",
+          "#765840",
+          "#9a7454",
+          "#c4a082",
+          "#d6bea9",
+          "#e9dbd0",
+          "#f8f3ef"
+        ]
       },
-      "diagram-hatch": {
-        "role": "neutral",
-        "displayName": "Trama del diagrama",
-        "canonical": "#97948b"
+      "board-green-light": {
+        "role": "board",
+        "displayName": "Board green light",
+        "canonical": "#eeeed2",
+        "tonalRamp": [
+          "#3c3c34",
+          "#6b6b5e",
+          "#9b9b88",
+          "#cacab2",
+          "#f1f1db",
+          "#f6f6e6",
+          "#fafaf2",
+          "#fdfdfa"
+        ]
       },
-      "diagram-hatch-ground": {
-        "role": "neutral",
-        "displayName": "Fondo de la trama",
-        "canonical": "#d3d0c7"
+      "board-green-dark": {
+        "role": "board",
+        "displayName": "Board green dark",
+        "canonical": "#769656",
+        "tonalRamp": [
+          "#1e2616",
+          "#354427",
+          "#4d6238",
+          "#648049",
+          "#91ab78",
+          "#b4c5a2",
+          "#d6e0cc",
+          "#f1f4ee"
+        ]
+      },
+      "board-classic-lastmove": {
+        "role": "board",
+        "displayName": "Board classic lastmove",
+        "canonical": "#cdd26a",
+        "tonalRamp": [
+          "#33341a",
+          "#5c5e30",
+          "#858845",
+          "#aeb25a",
+          "#d7db88",
+          "#e4e6ad",
+          "#f0f2d2",
+          "#fafaf0"
+        ]
+      },
+      "board-classic-selected": {
+        "role": "board",
+        "displayName": "Board classic selected",
+        "canonical": "#14551e",
+        "tonalRamp": [
+          "#051508",
+          "#09260e",
+          "#0d3714",
+          "#11481a",
+          "#43774b",
+          "#7ea283",
+          "#b8ccbc",
+          "#e8eee8"
+        ]
       }
     },
     "typographyMeta": {
+      "display-hero": {
+        "displayName": "Display hero",
+        "purpose": "Titular de Inicio."
+      },
       "display": {
-        "displayName": "Titular condensado",
-        "purpose": "Títulos de página, nombres de jugadores y titular de portada; Archivo 900 a anchura 62%, mayúsculas."
+        "displayName": "Display",
+        "purpose": "Encabezado de página."
       },
-      "nameplate": {
-        "displayName": "Mancheta",
-        "purpose": "Solo la cabecera GODCHESS en la banda de tinta."
+      "display-md": {
+        "displayName": "Display md",
+        "purpose": "Cabecera de partida y panel lateral."
       },
-      "headline": {
-        "displayName": "Cifra",
-        "purpose": "Cifras grandes: precisión, estadísticas, agenda; 800 a anchura 75%."
+      "display-sm": {
+        "displayName": "Display sm",
+        "purpose": "Títulos de editor, importación y práctica."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Cifras de precisión, estadísticas y agenda."
+      },
+      "figure-sm": {
+        "displayName": "Figure sm",
+        "purpose": "Estado vacío, enunciados, rótulo en paletas."
       },
       "title": {
-        "displayName": "Título de sección",
-        "purpose": "Secciones, pie de diagrama, veredictos y estados vacíos."
+        "displayName": "Title",
+        "purpose": "Fases del recorrido, veredictos."
       },
-      "body": {
-        "displayName": "Texto",
-        "purpose": "Interfaz y lectura a anchura normal, cifras tabulares."
+      "section": {
+        "displayName": "Section",
+        "purpose": "Títulos de sección, pie del tablero, puntuación de línea."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Entradilla."
       },
       "movetext": {
-        "displayName": "Notación",
-        "purpose": "La partida como texto de columna; línea principal 760, variantes 450."
+        "displayName": "Movetext",
+        "purpose": "Notación de la partida."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto general, tablas, botones."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Metadatos y controles secundarios."
+      },
+      "tab": {
+        "displayName": "Tab",
+        "purpose": "Pestañas de cabecera."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Notas y leyendas."
       },
       "label": {
-        "displayName": "Etiqueta",
-        "purpose": "Cabeceras de tabla y etiquetas de datos cortas, mayúsculas con tracking .07em."
+        "displayName": "Label",
+        "purpose": "Cabeceras de tabla, etiquetas, insignias."
       },
       "mono": {
         "displayName": "Mono",
-        "purpose": "FEN, PGN y códigos de invitación."
+        "purpose": "FEN, PGN y código."
       }
     },
     "shadows": [
       {
-        "name": "xray-hanging",
-        "value": "inset 0 0 0 4px rgba(200, 16, 46, .92)",
-        "purpose": "Anillo de casilla: pieza propia colgada (no es elevación)."
+        "name": "tab-underline",
+        "value": "inset 0 -3px 0 var(--accent)",
+        "purpose": "Pestaña activa de la cabecera."
       },
       {
-        "name": "xray-weak",
-        "value": "inset 0 0 0 3px rgba(200, 16, 46, .5)",
-        "purpose": "Anillo de casilla: pieza propia débil."
+        "name": "flap-edge",
+        "value": "inset 0 0 0 1px rgb(255 255 255 / .07)",
+        "purpose": "Filo interior de cada celda de paleta."
       },
       {
-        "name": "xray-target",
-        "value": "inset 0 0 0 4px rgba(31, 111, 92, .9)",
-        "purpose": "Anillo de casilla: pieza rival ganable."
+        "name": "flap-split-glint",
+        "value": "0 1px 0 rgb(255 255 255 / .06)",
+        "purpose": "Brillo bajo la hendidura de la paleta."
       },
       {
-        "name": "graph-mark-halo",
+        "name": "mark-halo",
         "value": "0 0 0 2px var(--paper)",
-        "purpose": "Halo de papel que separa los puntos de error del gráfico de evaluación."
+        "purpose": "Separa las marcas de error del gráfico."
       }
     ],
     "motion": [
       {
-        "name": "control-color",
-        "value": ".15s ease-out",
-        "purpose": "Cambios de color, fondo y borde en botones y pestañas."
+        "name": "flap-turn",
+        "value": ".26s cubic-bezier(.3, .7, .25, 1)",
+        "purpose": "Giro de una celda de paleta cuyo carácter cambió: rotateX(-88deg) y brillo 1.8 a reposo."
       },
       {
-        "name": "eval-bar-height",
-        "value": "height .35s cubic-bezier(.2, .8, .2, 1)",
-        "purpose": "Relleno de la barra de evaluación."
+        "name": "bar-fill",
+        "value": ".35s cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Altura de la barra de evaluación y anchos de victoria/tablas/derrota."
       },
       {
         "name": "toast",
-        "value": "opacity .2s ease-out, transform .2s cubic-bezier(.2, .8, .2, 1)",
-        "purpose": "Entrada del toast desde 12px abajo."
+        "value": ".2s ease-out; transform .2s cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Entrada del aviso: opacidad y 12px de desplazamiento."
       },
       {
-        "name": "skeleton-shimmer",
-        "value": "shimmer 1.4s linear infinite",
-        "purpose": "Carga de líneas del motor y filas."
+        "name": "control",
+        "value": ".15s ease-out",
+        "purpose": "Fondo, borde y color de botones y pestañas."
       },
       {
-        "name": "board",
-        "value": "animación propia de Chessground",
-        "purpose": "Movimiento de piezas en el diagrama."
+        "name": "shimmer",
+        "value": "1.4s linear infinite",
+        "purpose": "Esqueleto de carga de líneas de motor y filas."
       },
       {
         "name": "reduced-motion",
-        "value": "prefers-reduced-motion: reduce → transition-duration 0s, animation none",
-        "purpose": "Desactiva todo el movimiento."
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Anula todas las transiciones y animaciones."
       }
     ],
     "breakpoints": [
       {
         "name": "wide",
+        "value": "1600px"
+      },
+      {
+        "name": "game-head",
         "value": "1360px"
       },
       {
-        "name": "laptop",
+        "name": "engine-below",
         "value": "1240px"
       },
       {
-        "name": "narrow",
+        "name": "stack",
         "value": "900px"
       }
     ]
   },
   "components": [
     {
-      "name": "Primary Button",
+      "name": "Botón principal",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Acción principal en tinta rellena.",
-      "html": "<button class=\"ds-btn-primary\">Analizar partida completa</button>",
-      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid var(--ink,#161616);border-radius:0;background:var(--ink,#161616);color:var(--paper,#e6e5e0);font:650 14.5px/1.2 'Archivo Variable',Archivo,system-ui,sans-serif;transition:background-color .15s ease-out}.ds-btn-primary:hover{background:var(--ink-hover,#000)}.ds-btn-primary:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+      "description": "La acción de «ahora»; una por zona.",
+      "html": "<button class=\"ds-btn-primary\">Analizar partida</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;border:1px solid #ffb000;border-radius:0;background:#ffb000;color:#0b0b0d;font:650 15px/1 'Archivo Variable','Archivo',system-ui,sans-serif;letter-spacing:.04em;transition:background-color .15s ease-out,border-color .15s ease-out}.ds-btn-primary:hover{background:#ffc233;border-color:#ffc233}.ds-btn-primary:focus-visible{outline:2px solid #ffb000;outline-offset:2px}"
     },
     {
-      "name": "Secondary Button",
+      "name": "Botón secundario",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Acción secundaria en contorno de tinta.",
-      "html": "<button class=\"ds-btn-secondary\">Guardar línea</button>",
-      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border:1px solid var(--ink,#161616);border-radius:0;background:transparent;color:var(--ink,#161616);font:650 14.5px/1.2 'Archivo Variable',Archivo,system-ui,sans-serif;transition:background-color .15s ease-out}.ds-btn-secondary:hover{background:var(--paper-2,#dddcd6)}.ds-btn-secondary:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+      "description": "Acción alternativa con borde de tinta.",
+      "html": "<button class=\"ds-btn-secondary\">Importar PGN</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border:1px solid #f2f2f2;border-radius:0;background:transparent;color:#f2f2f2;font:650 15px/1 'Archivo Variable','Archivo',system-ui,sans-serif;transition:background-color .15s ease-out}.ds-btn-secondary:hover{background:#1f2226}.ds-btn-secondary:focus-visible{outline:2px solid #ffb000;outline-offset:2px}"
     },
     {
-      "name": "Ghost Button",
+      "name": "Botón fantasma",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Herramienta del tablero; el filete aparece al pasar.",
-      "html": "<button class=\"ds-btn-ghost\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M12 12v6M9 15l3-3 3 3\"/></svg> Importar</button>",
-      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 16px;border:1px solid transparent;border-radius:0;background:transparent;color:var(--ink,#161616);font:650 14.5px/1.2 'Archivo Variable',Archivo,system-ui,sans-serif;transition:border-color .15s ease-out}.ds-btn-ghost:hover{border-color:var(--rule-soft,#b7b4ab)}.ds-btn-ghost:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+      "description": "Acción terciaria; el borde aparece en hover.",
+      "html": "<button class=\"ds-btn-ghost\">Girar tablero</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border:1px solid transparent;border-radius:0;background:transparent;color:#f2f2f2;font:650 15px/1 'Archivo Variable','Archivo',system-ui,sans-serif;transition:border-color .15s ease-out}.ds-btn-ghost:hover{border-color:#2c3035}.ds-btn-ghost:focus-visible{outline:2px solid #ffb000;outline-offset:2px}"
     },
     {
-      "name": "Chip",
-      "kind": "chip",
-      "refersTo": "chip",
-      "description": "Signo de valoración conmutable.",
-      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\">!</button><button class=\"ds-chip ds-on\">?</button><button class=\"ds-chip\">?!</button></div>",
-      "css": ".ds-chips{display:flex;gap:6px}.ds-chip{min-width:34px;height:32px;padding:0 9px;border:1px solid var(--rule-soft,#b7b4ab);border-radius:0;background:transparent;color:var(--ink,#161616);font:700 13.5px 'Archivo Variable',Archivo,system-ui,sans-serif}.ds-chip:hover{border-color:var(--ink,#161616)}.ds-chip.ds-on{background:var(--ink,#161616);color:var(--paper,#e6e5e0);border-color:var(--ink,#161616)}.ds-chip:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
-    },
-    {
-      "name": "Text Field",
+      "name": "Campo de texto",
       "kind": "input",
       "refersTo": "input",
-      "description": "Campo sobre hoja con borde de tinta tercera.",
-      "html": "<label class=\"ds-field\">Jugador<input class=\"ds-input\" placeholder=\"Nombre\"></label>",
-      "css": ".ds-field{display:grid;gap:6px;font:650 13px 'Archivo Variable',Archivo,system-ui,sans-serif;color:var(--ink-2,#3d3b37)}.ds-input{min-height:40px;padding:8px 10px;border:1px solid var(--ink-3,#5c5a54);border-radius:0;background:var(--sheet,#f4f3ef);color:var(--ink,#161616);font:400 15px 'Archivo Variable',Archivo,system-ui,sans-serif;caret-color:var(--danger,#c8102e)}.ds-input:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:0;border-color:var(--ink,#161616)}"
+      "description": "Pozo oscuro recto con cursor rojo.",
+      "html": "<input class=\"ds-input\" placeholder=\"Buscar jugador o apertura\">",
+      "css": ".ds-input{min-height:40px;width:260px;padding:8px 10px;border:1px solid #a7aaaf;border-radius:0;background:#0f1113;color:#f2f2f2;caret-color:#ff4d5a;font:400 15px/1.5 'Archivo Variable','Archivo',system-ui,sans-serif}.ds-input::placeholder{color:#a7aaaf}.ds-input:focus-visible{outline:2px solid #ffb000;outline-offset:0;border-color:#f2f2f2}"
     },
     {
-      "name": "Masthead",
+      "name": "Pestañas de cabecera",
       "kind": "nav",
-      "refersTo": "masthead",
-      "description": "Banda de tinta con mancheta condensada y pestañas recortadas en papel.",
-      "html": "<nav class=\"ds-mast\"><span class=\"ds-name\">GodChess</span><button>Inicio</button><button class=\"ds-on\">Análisis</button><button>Partidas</button></nav>",
-      "css": ".ds-mast{display:flex;align-items:stretch;gap:2px;height:64px;padding:0 24px;background:var(--mast,#161616);color:var(--mast-ink,#e6e5e0);font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-name{align-self:center;margin-right:22px;font-stretch:62%;font-weight:900;font-size:34px;line-height:1;text-transform:uppercase;letter-spacing:.01em}.ds-mast button{border:0;background:none;padding:0 14px;color:var(--mast-muted,#a9a79f);font:600 14.5px inherit;font-family:inherit;transition:color .15s ease-out}.ds-mast button:hover{color:var(--mast-ink,#e6e5e0)}.ds-mast button.ds-on{background:var(--paper,#e6e5e0);color:var(--ink,#161616)}.ds-mast button:focus-visible{outline:2px solid var(--mast-ink,#e6e5e0);outline-offset:-4px}"
+      "refersTo": "tab-active",
+      "description": "Versalitas condensadas; la activa en ámbar con subrayado interior.",
+      "html": "<nav class=\"ds-tabs\"><button class=\"on\">Análisis</button><button>Partidas</button><button>Entrenar</button></nav>",
+      "css": ".ds-tabs{display:flex;gap:2px;height:64px;padding:0 24px;background:#0b0b0d}.ds-tabs button{border:0;background:none;padding:0 14px;color:#a7aaaf;font:600 13.5px/1 'Archivo Variable','Archivo',system-ui,sans-serif;font-stretch:75%;letter-spacing:.1em;text-transform:uppercase;transition:color .15s ease-out}.ds-tabs button:hover{color:#f2f2f2}.ds-tabs button.on{background:#16181b;color:#ffb000;box-shadow:inset 0 -3px 0 #ffb000}.ds-tabs button:focus-visible{outline:2px solid #f2f2f2;outline-offset:-4px}"
     },
     {
-      "name": "Subnav",
-      "kind": "nav",
-      "refersTo": "subnav",
-      "description": "Pestañas de sección sobre filete con subrayado de 3px.",
-      "html": "<nav class=\"ds-subnav\"><button class=\"ds-on\">Repasar <span class=\"ds-count\">12</span></button><button>Árbol</button><button>Explorador</button></nav>",
-      "css": ".ds-subnav{display:flex;border-bottom:1px solid var(--rule,#161616);font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-subnav button{display:inline-flex;align-items:center;gap:8px;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:none;padding:10px 14px 9px;color:var(--ink-3,#5c5a54);font:650 15px inherit;font-family:inherit}.ds-subnav button:hover{color:var(--ink,#161616)}.ds-subnav button.ds-on{color:var(--ink,#161616);border-bottom-color:var(--ink,#161616)}.ds-count{min-width:20px;padding:0 6px;background:var(--ink,#161616);color:var(--paper,#e6e5e0);font-size:12px;font-weight:700}"
+      "name": "Chip de anotación",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "NAG seleccionable.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip on\">!!</button><button class=\"ds-chip\">?!</button><button class=\"ds-chip\">??</button></div>",
+      "css": ".ds-chips{display:flex;gap:6px}.ds-chip{min-width:34px;height:32px;padding:0 9px;border:1px solid #2c3035;border-radius:0;background:transparent;color:#f2f2f2;font:700 13.5px/1 'Archivo Variable','Archivo',system-ui,sans-serif}.ds-chip:hover{border-color:#f2f2f2}.ds-chip.on{background:#f2f2f2;color:#16181b;border-color:#f2f2f2}.ds-chip:focus-visible{outline:2px solid #ffb000;outline-offset:2px}"
     },
     {
-      "name": "Column Notation",
+      "name": "Cifra de paleta partida",
+      "kind": "custom",
+      "refersTo": "flap-cell",
+      "description": "Firma del mundo: cada carácter en su celda negra, que gira al cambiar.",
+      "html": "<span class=\"ds-flap\"><span>+</span><span>0</span><span>,</span><span>8</span><span>4</span></span> <span class=\"ds-flap bad\"><span>2</span><span class=\"gap\"></span><span>1</span></span>",
+      "css": ".ds-flap{display:inline-flex;gap:.07em;font:700 34px/1 'Archivo Variable','Archivo',system-ui,sans-serif;font-stretch:62%}.ds-flap>span{position:relative;display:inline-block;min-width:.66em;padding:.05em .09em .02em;border-radius:2px;background:#0b0b0d;color:#f2f2f2;text-align:center;line-height:1.12;box-shadow:inset 0 0 0 1px rgb(255 255 255 / .07);animation:ds-flap-turn .26s cubic-bezier(.3,.7,.25,1) both}.ds-flap>span::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgb(0 0 0 / .9);box-shadow:0 1px 0 rgb(255 255 255 / .06)}.ds-flap>span.gap{min-width:.3em;padding:0;background:transparent;box-shadow:none}.ds-flap>span.gap::after{display:none}.ds-flap.bad>span{color:#ff4d5a}@keyframes ds-flap-turn{0%{transform:perspective(200px) rotateX(-88deg);filter:brightness(1.8)}100%{transform:none;filter:none}}@media (prefers-reduced-motion:reduce){.ds-flap>span{animation:none}}"
+    },
+    {
+      "name": "Notación con gravedad",
       "kind": "custom",
       "refersTo": "move-current",
-      "description": "La partida compuesta como texto de columna con severidad por signo.",
-      "html": "<p class=\"ds-movetext\"><span class=\"ds-mv ds-main\">1.e4</span> <span class=\"ds-mv ds-main\">e5</span> <span class=\"ds-mv ds-main\">2.Cf3</span> <span class=\"ds-mv ds-main ds-bad ds-cur\">f6??</span> <span class=\"ds-mv ds-main ds-mistake\">3.Ac4?</span> <span class=\"ds-var\">(3.Cxe5! <span class=\"ds-cm\">gana en el acto</span>)</span></p>",
-      "css": ".ds-movetext{max-width:42ch;font:450 16.5px/1.8 'Archivo Variable',Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink-2,#3d3b37)}.ds-mv{padding:1px 3px;cursor:pointer}.ds-mv:hover{background:var(--paper-2,#dddcd6)}.ds-main{font-weight:760;color:var(--ink,#161616)}.ds-bad{color:var(--danger,#c8102e)}.ds-mistake{color:var(--warn,#8a5a00)}.ds-cur{background:var(--ink,#161616);color:var(--paper,#e6e5e0)}.ds-bad.ds-cur{background:var(--danger,#c8102e)}.ds-var{display:block;margin:2px 0 6px 18px;font-size:15px;line-height:1.7}.ds-cm{font-style:italic}"
+      "description": "Jugada actual iluminada en blanco; ?? rojo, ? ámbar, ?! solo glifo.",
+      "html": "<p class=\"ds-moves\"><button>14. Cf3</button> <button class=\"cur\">Dxb2??</button> <button class=\"mis\">15. Tb1?</button> <button>Da3?!</button></p>",
+      "css": ".ds-moves{font:450 16.5px/1.8 'Archivo Variable','Archivo',system-ui,sans-serif;color:#c4c6ca;background:#16181b;padding:8px}.ds-moves button{border:0;border-radius:0;background:none;padding:1px 3px;font:inherit;color:inherit}.ds-moves button:hover{background:#1f2226}.ds-moves .cur{background:#ff4d5a;color:#16181b}.ds-moves .mis{color:#ffb000}"
     },
     {
-      "name": "Printed Diagram",
+      "name": "Aviso",
       "kind": "custom",
-      "refersTo": "eval-bar",
-      "description": "Tablero con marco de 2px, casillas oscuras rayadas y pie de diagrama.",
-      "html": "<figure class=\"ds-diagram\"><div class=\"ds-board\"></div><figcaption class=\"ds-caption\"><strong>Juegan las blancas</strong><span>Partida nº 0042</span></figcaption></figure>",
-      "css": ".ds-diagram{margin:0;width:192px;font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-board{aspect-ratio:1;border:2px solid var(--rule,#161616);background-color:#f4f3ef;background-image:repeating-linear-gradient(45deg,#97948b 0 1.5px,#d3d0c7 1.5px 4.4px);-webkit-mask:none;background-size:auto;position:relative}.ds-board::after{content:'';position:absolute;inset:0;background:conic-gradient(#f4f3ef 25%,transparent 0 50%,#f4f3ef 0 75%,transparent 0) 0 0/25% 25%}.ds-caption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:10px;padding-top:7px;border-top:2px solid var(--rule,#161616)}.ds-caption strong{font-stretch:75%;font-weight:800;font-size:16px;text-transform:uppercase}.ds-caption span{font-size:12px;color:var(--ink-3,#5c5a54)}"
-    },
-    {
-      "name": "Action List",
-      "kind": "custom",
-      "refersTo": "action-list",
-      "description": "Lista de acciones con filetes entre filas.",
-      "html": "<ul class=\"ds-actions\"><li><button>Guardar en el repertorio</button></li><li><button>Entrenar esta línea</button></li></ul>",
-      "css": ".ds-actions{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule,#161616);font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-actions li{border-bottom:1px solid var(--rule-soft,#b7b4ab)}.ds-actions button{display:flex;width:100%;padding:10px 2px;border:0;background:none;text-align:left;font:600 14px inherit;font-family:inherit;color:var(--ink,#161616)}.ds-actions button:hover{background:var(--paper-2,#dddcd6)}.ds-actions button:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+      "refersTo": "toast",
+      "description": "Bloque de tinta recto, abajo al centro.",
+      "html": "<div class=\"ds-toast\">Partida guardada en tu archivo</div>",
+      "css": ".ds-toast{display:inline-block;padding:12px 16px;background:#f2f2f2;color:#16181b;font:600 13.5px/1.4 'Archivo Variable','Archivo',system-ui,sans-serif;transition:opacity .2s ease-out,transform .2s cubic-bezier(.2,.8,.2,1)}"
     }
   ],
   "narrative": {
-    "northStar": "Columna de ajedrez",
-    "overview": "Cada análisis se compone como la columna de ajedrez de un periódico: diagrama impreso, pie de diagrama y partida comentada en ritmo de columna. La página es papel de periódico gris frío, la tinta es casi negra y la estructura la ponen filetes visibles (rules), no paneles. Un solo color de imprenta, el rojo, se reserva para el error; el verde azulado marca lo correcto. Todo lo demás es tinta sobre papel.\n\nLa densidad es la de una sección de periódico: columnas separadas por filetes de 1px, cabeceras condensadas en mayúsculas, cifras tabulares, listas y tablas con filetes suaves entre filas. Los campos planos de tinta (la mancheta, el botón primario, la jugada actual, el toast) son los únicos bloques de color sólido; marcan dónde está el lector.\n\nEl sistema rechaza el default de la categoría: paneles carbón con acento neón y tarjetas flotantes. No hay sombras, no hay radios, no hay tarjetas. La edición nocturna es el mismo sistema invertido sobre tinta, no un tema distinto.",
+    "northStar": "Panel de salidas",
+    "overview": "GodChess se lee como el panel de salidas de una sala de torneo. Todo número que importa (evaluación, precisión, recuentos, relojes) está compuesto en celdas de paleta partida que giran cuando el valor cambia; el resto de la interfaz es un bastidor de acero oscuro, plano y reticulado que sostiene esas cifras. El ámbar de retraso marca lo que ocurre ahora, el rojo de cancelación marca el error grave, el verde de señal marca lo correcto.\n\nLa densidad es de instrumento: columnas separadas por filetes, encabezados en versalitas condensadas con tracking amplio, texto de lectura en Archivo de ancho normal. No hay tarjetas flotantes ni sombras de elevación: la profundidad sale del marco (bordes de acero, pozos más oscuros, escalones de tono). La edición nocturna es la predeterminada; la edición diurna cambia el suelo a acero claro y conserva negros la cabecera y las paletas.\n\nEl mundo sustituye por completo a la anterior «Columna de ajedrez» de papel prensa y rechaza el clon carbón cálido de Lichess.",
     "keyCharacteristics": [
-      "Papel de periódico frío, tinta casi negra, un rojo de imprenta para errores.",
-      "Filetes visibles (2px tinta para cabeceras, 1px tinta para columnas, 1px suave para filas).",
-      "Archivo con eje de anchura: condensado 62–75% para titulares y cifras, anchura normal para la interfaz.",
-      "Tablero como diagrama impreso: casillas oscuras rayadas, marco de 2px.",
-      "Notación de la partida compuesta como texto de columna, variantes en línea.",
-      "Esquinas rectas, superficies planas, cero sombras de elevación."
+      "Cifras en paletas partidas negras con hendidura central, que giran una vez al cambiar.",
+      "Suelo de acero oscuro con marco visible; columnas divididas por filetes.",
+      "Ámbar para «ahora»: pestaña activa, acción principal, selección en el tablero de acero.",
+      "Gravedad por glifo: ?? rojo, ? ámbar, ?! solo glifo.",
+      "Archivo Variable: versalitas condensadas (wdth 62–75) para titulares y etiquetas, ancho normal para leer.",
+      "Esquinas rectas en todo salvo las celdas de paleta (2px)."
     ],
     "rules": [
       {
-        "name": "The One Spot Colour Rule",
-        "body": "El rojo existe solo para el error grave. No se usa en botones, enlaces, decoración ni marca. Si algo es rojo, el jugador se equivocó o algo está en peligro.",
+        "name": "The Amber Is Now Rule",
+        "body": "El ámbar significa «ahora» o «atención»: la pestaña activa, la acción principal, el reloj que corre, la selección en el tablero de acero y las jugadas ?. Nunca decora; si no hay estado presente, no hay ámbar.",
         "section": "colors"
       },
       {
-        "name": "The Glyph Decides Rule",
-        "body": "El color de una jugada sigue a su signo: `??` rojo, `?` ámbar, `?!` solo su signo en tinta, `!` y `!!` verde. Nunca se colorea una dudosa como error.",
+        "name": "The Severity By Glyph Rule",
+        "body": "La gravedad sigue al glifo de anotación: ?? en rojo de cancelación, ? en ámbar, ?! solo con su glifo y sin color. Ninguna otra señal se pinta de rojo o ámbar.",
         "section": "colors"
       },
       {
-        "name": "The Ink Is Action Rule",
-        "body": "No hay color de acento para acciones. La acción primaria es tinta rellena; la secundaria, tinta en contorno.",
+        "name": "The Black Flaps Rule",
+        "body": "Las paletas y la cabecera son negras en ambas ediciones, así que sus tonos (rojo, ámbar, verde, apagado) se fijan en los valores nocturnos aunque el suelo sea diurno.",
         "section": "colors"
       },
       {
-        "name": "The Condensed Means Headline Rule",
-        "body": "La anchura 62% en 900 es solo para titulares y la mancheta; 75% en 800 para cifras y títulos de sección. Los controles y el texto de lectura van siempre a anchura normal.",
+        "name": "The Condensed Caps Rule",
+        "body": "Titulares, etiquetas y pestañas van condensados, en mayúsculas y con tracking amplio (0.06–0.12em). El texto que se lee (lede, notación, comentarios, consejos) va a ancho normal y en caja baja. No se mezclan dentro del mismo bloque.",
         "section": "typography"
       },
       {
-        "name": "The Tabular Figures Rule",
-        "body": "Toda cifra (evaluación, precisión, reloj, número de partida, recuento) usa cifras tabulares, para que las columnas de números alineen como en una tabla impresa.",
+        "name": "The Figures Flip Rule",
+        "body": "Solo las cifras que cambian (evaluación de líneas, precisión, errores graves, recuentos de agenda, relojes, estadísticas) y el rótulo GODCHESS van en paletas. Las frases nunca.",
         "section": "typography"
       },
       {
-        "name": "The Rules Not Shadows Rule",
-        "body": "Si algo necesita separarse, recibe un filete. Nunca una sombra, nunca un fondo de tarjeta.",
+        "name": "The Frame Not Float Rule",
+        "body": "Nada flota. Un panel se distingue por su filete o su marco, no por una sombra proyectada.",
         "section": "elevation"
+      },
+      {
+        "name": "The Two Pixel Rule",
+        "body": "2px de radio solo en las celdas de paleta. Cualquier otra superficie va recta; el círculo queda reservado a los puntos de gravedad.",
+        "section": "shapes"
       }
     ],
     "dos": [
-      "Do separar zonas con filetes: 2px tinta bajo cabeceras de página y sobre informes, 1px tinta entre columnas, 1px filete suave entre filas.",
-      "Do componer titulares en Archivo 900 a anchura 62% en mayúsculas, y cifras en 800 a anchura 75%.",
-      "Do colorear las jugadas según su signo: `??` rojo, `?` ámbar, `?!` sin color, `!`/`!!` verde.",
-      "Do usar tinta rellena para el estado activo (pestaña, chip, segmento, jugada actual).",
-      "Do mantener el diagrama con casillas oscuras rayadas y marco de 2px en ambas ediciones.",
-      "Do desactivar transiciones y animaciones con `prefers-reduced-motion: reduce`."
+      "**Do** componer en paletas toda cifra que cambie y dejar que solo el carácter cambiado gire (.26s).",
+      "**Do** reservar el ámbar para lo que ocurre ahora: pestaña activa, acción principal, reloj que corre, selección en el tablero de acero, jugadas ?.",
+      "**Do** colorear la gravedad por glifo: ?? rojo, ? ámbar, ?! solo glifo.",
+      "**Do** usar versalitas condensadas con tracking 0.06–0.12em para titulares y etiquetas, y Archivo a ancho normal para leer.",
+      "**Do** separar zonas con filetes de 1px y 2px y enmarcar el tablero con acero de 3px.",
+      "**Do** mantener las paletas y la cabecera negras en la edición diurna.",
+      "**Do** anular toda animación con prefers-reduced-motion."
     ],
     "donts": [
-      "Don't usar sombras de elevación, esquinas redondeadas ni tarjetas con fondo propio.",
-      "Don't usar el rojo para nada que no sea error grave o peligro.",
-      "Don't introducir un color de acento para botones o enlaces; la acción es tinta.",
-      "Don't usar la anchura condensada en controles ni en texto de lectura.",
-      "Don't volver a los paneles carbón con acento neón."
+      "**Don't** redondear nada salvo las celdas de paleta (2px) y los puntos de gravedad.",
+      "**Don't** usar sombras proyectadas para separar paneles.",
+      "**Don't** usar ámbar o rojo como decoración o para señales que no sean «ahora» o gravedad.",
+      "**Don't** poner frases o párrafos en paletas.",
+      "**Don't** volver al papel prensa de «Columna de ajedrez» ni al carbón cálido tipo Lichess."
     ]
   }
 }
