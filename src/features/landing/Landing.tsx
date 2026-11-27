@@ -98,7 +98,7 @@ export function Landing() {
 
 /** Sign up / sign in / reset: a working form, not a link to one. */
 function BoardingDesk() {
-  const { signUp, signIn, oauth, resetPassword } = useSession();
+const { signUp, signIn, resetPassword } = useSession();
   const [mode, setMode] = useState<'signup' | 'signin' | 'reset'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -113,7 +113,6 @@ function BoardingDesk() {
     if (mode === 'reset' && !error) { setMessage({ ok: true, text: 'Te enviamos un enlace para cambiar la contraseña.' }); return; }
     if (error) setMessage({ ok: error.startsWith('Te enviamos'), text: error });
   };
-  const provider = async (name: 'google' | 'github') => { setMessage(null); const error = await oauth(name); if (error) setMessage({ ok: false, text: error }); };
 
   return (
     <aside className="desk" id="mostrador" aria-label="Acceso">
@@ -129,11 +128,6 @@ function BoardingDesk() {
         <button className="primary desk-submit" type="submit" disabled={busy}>{busy ? 'Un momento…' : mode === 'signup' ? 'Embarcar' : mode === 'signin' ? 'Entrar' : 'Enviar enlace'}</button>
       </form>
       {message && <p className={message.ok ? 'verdict-line good' : 'form-error'} role="status">{message.text}</p>}
-      {mode !== 'reset' && <>
-        <p className="desk-or">o</p>
-        <button className="secondary desk-oauth" onClick={() => void provider('google')}>Continuar con Google</button>
-        <button className="secondary desk-oauth" onClick={() => void provider('github')}><Github size={16} /> Continuar con GitHub</button>
-      </>}
       {mode === 'signin' && <button className="link desk-forgot" onClick={() => { setMode('reset'); setMessage(null); }}>He olvidado mi contraseña</button>}
       {mode === 'reset' && <button className="link desk-forgot" onClick={() => setMode('signin')}>Volver a entrar</button>}
     </aside>
