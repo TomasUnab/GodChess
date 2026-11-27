@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tomasunab.github.io/GodChess/sitemap.xml

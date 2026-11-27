@@ -6,7 +6,21 @@
 <meta name="theme-color" content="#161616" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://lichess.org https://api.chess.com https://*.peerjs.com wss://*.peerjs.com https://huggingface.co https://*.huggingface.co https://*.hf.co; media-src 'self' blob:;" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>GodChess · Entrenamiento local</title>
+<title>GodChess: entrenador de ajedrez personalizado</title>
+<meta name="description" content="Entrena ajedrez con tus propias partidas: Stockfish, puzzles de tus errores, aperturas, mates y un doble que aprende de ti." />
+<link rel="canonical" href="https://tomasunab.github.io/GodChess/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="es_ES" />
+<meta property="og:title" content="GodChess: entrenador de ajedrez personalizado" />
+<meta property="og:description" content="Analiza tus partidas, entiende tus errores y conviértelos en entrenamiento." />
+<meta property="og:url" content="https://tomasunab.github.io/GodChess/" />
+<meta property="og:image" content="https://tomasunab.github.io/GodChess/favicon.svg" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="GodChess: entrenador de ajedrez personalizado" />
+<meta name="twitter:description" content="Analiza tus partidas, entiende tus errores y conviértelos en entrenamiento." />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://tomasunab.github.io/GodChess/#organization","name":"GodChess","url":"https://tomasunab.github.io/GodChess/","sameAs":["https://github.com/TomasUnab/GodChess"]},{"@type":"WebSite","@id":"https://tomasunab.github.io/GodChess/#website","url":"https://tomasunab.github.io/GodChess/","name":"GodChess","description":"Entrenador de ajedrez personalizado basado en tus propias partidas.","publisher":{"@id":"https://tomasunab.github.io/GodChess/#organization"}}]}
+</script>
     <!-- Remove the legacy COI worker: it used to intercept Supabase requests. -->
     <script>
       if (navigator.serviceWorker && !sessionStorage.getItem('godchess.sw-cleaned')) {
