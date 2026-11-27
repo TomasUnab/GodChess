@@ -22,6 +22,13 @@ const STOPS = [
 ];
 
 const FACTS: [string, string][] = [['3.865', 'aperturas con nombre'], ['3.737.161', 'partidas de maestros'], ['8.790', 'puzzles con su partida de origen'], ['0', 'anuncios']];
+const GUIDE = [
+  ['01', 'Importa una partida', 'Trae un PGN o conecta tu cuenta de Lichess o Chess.com desde Partidas.'],
+  ['02', 'Analiza sin adivinar', 'Stockfish señala la mejor línea, la evaluación y dónde cambió la partida.'],
+  ['03', 'Entiende el error', 'Revisa la autopsia y escribe qué viste o qué se te pasó en cada jugada.'],
+  ['04', 'Entrena lo que fallaste', 'Tus errores vuelven como puzzles con escaneo CCT y repetición espaciada.'],
+  ['05', 'Juega contra tu doble', 'Con suficientes partidas, tu doble reproduce tus aperturas y tu forma de equivocarte.'],
+];
 
 /** The departures board: what GodChess does, row by row, and the boarding desk to sign up. */
 export function Landing() {
@@ -53,6 +60,7 @@ return (
         <a className="nameplate" href="#top" aria-label="GodChess"><Flap value="GODCHESS" label="GodChess" /></a>
         <nav aria-label="Secciones">
           <a href="#como-funciona">Cómo funciona</a>
+          <a href="#guia">Guía</a>
           <a href="#datos">Datos</a>
           <a href="#mostrador" className="landing-login">Entrar</a>
           <a href="#mostrador" className="primary">Crear cuenta</a>
@@ -90,6 +98,15 @@ return (
           <h2>Sin letra pequeña</h2>
           <dl className="facts">{FACTS.map(([value, label]) => <div key={label}><dt><Flap value={value} /></dt><dd>{label}</dd></div>)}</dl>
           <p className="landing-note">El análisis, los puzzles y tu doble funcionan en tu dispositivo. Tu cuenta guarda tus partidas, tu repertorio y tu progreso para usarlos en cualquier equipo, y te deja retar a tus amigos. Sin publicidad ni seguimiento. Código abierto (GPL-3.0).</p>
+        </section>
+
+        <section className="landing-section" id="guia">
+          <h2>Tu primera sesión</h2>
+          <p className="landing-note">No necesitas estudiar teoría antes de empezar. GodChess convierte una partida real tuya en un plan de entrenamiento concreto.</p>
+          <ol className="stops guide-steps">
+            {GUIDE.map(([n, title, text]) => <li key={n}><Flap value={n} tone="warn" /><h3>{title}</h3><p>{text}</p></li>)}
+          </ol>
+          <a href="#mostrador" className="primary">Empezar gratis</a>
         </section>
 
         <section className="landing-final">
