@@ -762,6 +762,15 @@ td.answer .tag { margin-left: 8px; }
 @media (max-width: 1100px) { .quality-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .quality-list { grid-template-columns: minmax(0, 1fr); } }
 
+@media (max-width: 600px) {
+  .engine-head { align-items: stretch; gap: 8px; }
+  .engine-head .switch { flex: 1 1 100%; }
+  .engine-head .engine-meta { flex: 1 1 100%; order: 4; min-width: 0; }
+  .engine-head select { flex: 1 1 calc(50% - 4px); min-width: 0; max-width: none; }
+  .report-run { grid-template-columns: minmax(0, 1fr); }
+  .report-run .primary { min-height: 42px; }
+}
+
 /* Assistant */
 .coach-toggle.on { border-color: var(--accent); color: var(--accent); }
 .coach-panel { position: fixed; z-index: 30; top: var(--mast-h); right: 0; bottom: 0; width: min(420px, 100vw); display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; background: var(--paper-2); border-left: 1px solid var(--rule); box-shadow: -12px 0 32px rgb(0 0 0 / .35); }
