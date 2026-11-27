@@ -9,7 +9,7 @@ import { addMove, createTree, deleteNode, lineEnd, pathTo, promoteVariation, tog
 import { parsePgn, toPgn } from '../chess/pgn';
 import { addLine, loadRepertoire, removeEntry, review, saveRepertoire, type Repertoire, type RepertoireColor } from '../chess/repertoire';
 
-export type Area = 'home' | 'analysis' | 'games' | 'repertoire' | 'train' | 'play';
+export type Area = 'home' | 'analysis' | 'games' | 'repertoire' | 'train' | 'play' | 'settings';
 export type TrainSection = 'path' | 'lesson' | 'diagnosis' | 'puzzles' | 'blitz' | 'mistakes' | 'guess' | 'vision' | 'mates' | 'journal';
 export type PlaySection = 'engine' | 'clone' | 'live' | 'invite' | 'friends';
 /** A challenge handed to the invite game: host a code (challenger) or join one (opponent). */

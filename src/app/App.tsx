@@ -10,6 +10,7 @@ import { TrainView } from '../features/train/TrainView';
 import { PlayView } from '../features/play/PlayView';
 import { dueEntries } from '../chess/repertoire';
 import { Flap } from '../ui/Flap';
+import { SettingsView } from '../account/SettingsView';
 // The assistant (and the optional WebLLM it can load) is split out of the main bundle.
 const CoachPanel = lazy(() => import('../coach/CoachPanel').then(m => ({ default: m.CoachPanel })));
 
@@ -57,13 +58,13 @@ export function App() {
             <option value="steel">Acero</option><option value="diagram">Diagrama</option><option value="wood">Madera</option><option value="green">Verde</option>
           </select>
         </label>
-        {session && <button className="edition account" onClick={() => void signOut()} title={`Sesión: ${session.user.email ?? ''}`}><span>{profile?.username ?? 'Cuenta'}</span><LogOut size={16} aria-label="Salir" /></button>}
+        {session && <div className="account-menu"><button className={`edition account ${area === 'settings' ? 'on' : ''}`} onClick={() => go('settings')} title="Abrir configuración"><span>{profile?.username ?? 'Cuenta'}</span></button><button className="edition account-exit" onClick={() => void signOut()} title="Cerrar sesión"><LogOut size={16} aria-label="Salir" /></button></div>}
         <button className="edition" onClick={() => setPrefs({ theme: prefs.theme === 'night' ? 'day' : 'night' })} aria-pressed={prefs.theme === 'night'} title={prefs.theme === 'night' ? 'Edición de día' : 'Edición nocturna'}>
           {prefs.theme === 'night' ? <Sun size={16} /> : <Moon size={16} />}<span>{prefs.theme === 'night' ? 'Edición de día' : 'Edición nocturna'}</span>
         </button>
       </header>
       <main id="main" className={`main area-${area}`} tabIndex={-1}>
-        {area === 'home' ? <HomeView /> : area === 'analysis' ? <AnalysisView /> : area === 'games' ? <GamesView /> : area === 'repertoire' ? <RepertoireView /> : area === 'train' ? <TrainView /> : <PlayView />}
+        {area === 'home' ? <HomeView /> : area === 'analysis' ? <AnalysisView /> : area === 'games' ? <GamesView /> : area === 'repertoire' ? <RepertoireView /> : area === 'train' ? <TrainView /> : area === 'settings' ? <SettingsView /> : <PlayView />}
       </main>
       {coach && <Suspense fallback={null}><CoachPanel onClose={() => setCoach(false)} /></Suspense>}
     </div>
