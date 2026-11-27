@@ -4,13 +4,14 @@ import { redirectUrl, supabase } from './supabase';
 
 export type Profile = { id: string; username: string; display_name: string | null; lichess: string | null; chesscom: string | null };
 type SessionState = {
-  ready: boolean; session: Session | null; profile: Profile | null;
+  ready: boolean; session: Session | null; profile: Profile | null; recovery: boolean;
   init: () => void;
   signUp: (email: string, password: string) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
   oauth: (provider: 'google' | 'github') => Promise<string | null>;
   resetPassword: (email: string) => Promise<string | null>;
   updatePassword: (password: string) => Promise<string | null>;
+  finishRecovery: () => void;
   signOut: () => Promise<void>;
   updateProfile: (patch: Partial<Omit<Profile, 'id'>>) => Promise<string | null>;
 };
@@ -46,7 +47,7 @@ function isRecoverableSessionError(error: unknown) {
 }
 
 export const useSession = create<SessionState>((set, get) => ({
-  ready: !supabase, session: null, profile: null,
+  ready: !supabase, session: null, profile: null, recovery: false,
   init: () => {
     if (!supabase) return;
     if (sessionInitialized) return;
@@ -74,7 +75,10 @@ export const useSession = create<SessionState>((set, get) => ({
         clearInvalidAuthStorage();
         set({ ready: true, session: null, profile: null });
       });
-    supabase.auth.onAuthStateChange((_event, session) => { set({ session }); void loadProfile(session); });
+    supabase.auth.onAuthStateChange((event, session) => {
+      set({ session, recovery: event === 'PASSWORD_RECOVERY' });
+      void loadProfile(session);
+    });
   },
   signUp: async (email, password) => {
     if (!supabase) return NOT_CONFIGURED;
@@ -102,6 +106,7 @@ export const useSession = create<SessionState>((set, get) => ({
     const { error } = await supabase.auth.updateUser({ password });
     return error ? authMessage(error.message) : null;
   },
+  finishRecovery: () => set({ recovery: false }),
   signOut: async () => { await supabase?.auth.signOut(); set({ session: null, profile: null }); },
   updateProfile: async patch => {
     const { session, profile } = get();

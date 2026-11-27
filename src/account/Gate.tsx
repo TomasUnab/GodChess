@@ -12,7 +12,7 @@ import { useSession } from './session';
  * (#landing previews the landing) and production builds show the landing.
  */
 export function Gate({ children }: { children: ReactNode }) {
-  const { ready, session, init, updatePassword } = useSession();
+  const { ready, session, recovery, init, updatePassword, finishRecovery } = useSession();
   const [newPassword, setNewPassword] = useState('');
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   useEffect(() => { init(); }, [init]);
@@ -33,8 +33,7 @@ export function Gate({ children }: { children: ReactNode }) {
   const preview = typeof window !== 'undefined' && window.location.hash === '#landing';
   if (!supabaseConfigured) return preview || !import.meta.env.DEV ? <Landing /> : <>{children}</>;
   if (!ready) return <div className="gate-loading" role="status">Comprobando tu sesión…</div>;
-  const isRecovery = typeof window !== 'undefined' && new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery';
-  if (isRecovery) {
+  if (recovery) {
     return <main className="landing"><section className="desk" style={{ margin: '4rem auto' }}>
       <h1>Choose a new password</h1>
       <form onSubmit={async event => {
@@ -42,7 +41,10 @@ export function Gate({ children }: { children: ReactNode }) {
         setPasswordMessage(null);
         const error = await updatePassword(newPassword);
         setPasswordMessage(error ?? 'Password updated. You can now enter GodChess.');
-        if (!error) window.history.replaceState({}, '', window.location.pathname + window.location.search + '#/');
+        if (!error) {
+          finishRecovery();
+          window.history.replaceState({}, '', window.location.pathname + window.location.search + '#/');
+        }
       }}>
         <label className="field">New password
           <input type="password" minLength={6} required value={newPassword} onChange={event => setNewPassword(event.target.value)} />
