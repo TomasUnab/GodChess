@@ -13,5 +13,8 @@ export const supabase: SupabaseClient | null = supabaseConfigured
   ? createClient(url!, anonKey!, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' } })
   : null;
 
-/** Where OAuth and email links return to: the app's own address (works under the Pages subpath). */
-export const redirectUrl = () => new URL(import.meta.env.BASE_URL, window.location.href).href;
+/** Where OAuth and email links return to. Never generate a file:// redirect. */
+export const redirectUrl = () => {
+  if (window.location.protocol === 'file:') return 'https://tomasunab.github.io/GodChess/';
+  return new URL(import.meta.env.BASE_URL, window.location.origin).href;
+};

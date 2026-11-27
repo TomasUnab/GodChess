@@ -1,8 +1,47 @@
 # GodChess
 
-Entrenador local de ajedrez orientado a reducir piezas colgadas y errores graves. Esta primera etapa entrega el núcleo de producto navegable: resumen adaptativo, sesión CCT obligatoria, candidata de jugada, tablero offline, métricas, diario e invitación.
+GodChess is a browser-based chess trainer focused on reducing hanging pieces and serious mistakes. It includes an adaptive dashboard, CCT training, candidate moves, an offline board, metrics, a journal, and invitation games.
 
-## Ejecutar
+## Use the web app
+
+No installation is required to use GodChess. Open the published website in a modern browser and start playing. The app runs entirely in the browser and does not require a desktop application.
+
+## Features
+
+- **Analysis**: move trees, variations, comments, NAG evaluations, keyboard navigation, PGN/FEN import and export, opening names, Stockfish 17.1 with 1–5 MultiPV lines, an evaluation bar, W/D/L probabilities, a position editor, screenshot-based board reading, and shareable PGN/FEN links.
+- **Game reports**: Stockfish analysis at depths 10/14/18, Lichess-style accuracy, inaccuracies, mistakes and blunders, best-line variations, and a navigable evaluation graph.
+- **Games**: import games from Lichess or Chess.com, analyze games without evaluations, train your chess double, store games in IndexedDB, view statistics, import PGN files by drag and drop, and search, filter, and sort games.
+- **Repertoire**: save lines for either color and practice them with spaced repetition. “My Tree” summarizes your games by position, while “Masters” explores millions of games by 2400+ rated players. The opening explorer contains 3,865 openings.
+- **Training**: a phase-based learning path, piece lessons, six-position diagnosis, CCT puzzles, time trials, vision drills, a checkmate library, “My Mistakes”, “Guess the Move”, and an error journal.
+- **Play**: an adaptive bot starting around 250 rating, your chess double trained from your games, and peer-to-peer invitation games.
+
+## Design
+
+The visual direction is an “airport departure board”: GodChess feels like the board in a tournament room. Important figures use palette cells that flip when they change. Amber indicates active elements and errors ('?'); red indicates blunders ('??'). Dark mode is the default, with a light mode and Steel, Diagram, Wood, and Green board themes. Archivo is bundled locally. See DESIGN.md for details.
+
+## Privacy and accounts
+
+The public landing page is available without an account. Accounts use Supabase with email/password, Google, or GitHub. Once signed in, games, repertoire, progress, preferences, and your chess double can sync to your account. In **Play → Friends**, users can search for players, add them, and challenge them to direct browser-to-browser games.
+
+Training progress and preferences are stored locally, while training data uses IndexedDB. Only connections initiated by the user can leave the device. Row Level Security rules in supabase/schema.sql ensure that each user can only read and modify their own data. Configuration details are in supabase/README.md.
+
+## Assistant
+
+The **Assistant** answers questions about the open game and your statistics using the Stockfish report, game autopsy, statistics, and error-specific advice. On browsers with WebGPU, it can optionally use local AI through WebLLM. The one-time model download is about 1 GB and data stays in the browser.
+
+## Publishing on GitHub Pages
+
+The repository includes .github/workflows/pages.yml. To publish the web app:
+
+1. Push the repository to GitHub on the main branch.
+2. Open **Settings → Pages** and choose **GitHub Actions** as the source.
+3. Every push to main will test, build, and publish the site at https://<user>.github.io/<repository>/.
+
+The published app consists of static files. It uses relative paths (base: './'), Stockfish WebAssembly, and data in public/data/. Because GitHub Pages does not provide COOP/COEP headers, public/coi-serviceworker.js adds them in the browser; the first visit may reload the page once. Invitations use PeerJS’s public signaling server.
+
+## Optional local development
+
+These commands are **not required to use the published website**. They are only for contributors who want to run or test the project locally:
 
 ```bash
 npm install
@@ -11,54 +50,12 @@ npm run build
 npm test
 ```
 
-La instalación no incluye CDN ni fuentes remotas en runtime. El motor previsto vive en `/public/engine/` y será ejecutado siempre desde un Web Worker.
+Stockfish 17.1 runs in a Web Worker. With cross-origin isolation it uses up to four threads; otherwise it falls back to the single-threaded engine in public/engine/. If you use another server, configure Cross-Origin-Opener-Policy: same-origin and Cross-Origin-Embedder-Policy: require-corp.
 
-## Qué incluye
+## Local datasets
 
-GodChess combina el entrenador para principiantes con un tablero de análisis inspirado en las funciones de En Croissant (implementación propia; En Croissant es solo referencia funcional).
+- Openings: lichess-org/chess-openings (CC0), vendored in public/data/openings/.
+- Puzzles with source games: mcognetta/lichess-combined-puzzle-game-db (CC0), with a 50,000-puzzle sample.
+- Masters explorer: the Lichess Elite Database from database.nikonoel.fr, containing games by 2400+ rated players.
 
-- **Análisis**: árbol de jugadas con variantes, comentarios y valoraciones (NAG), navegación con teclado (←/→, Inicio/Fin, F para girar, espacio juega la mejor línea), importación y exportación PGN/FEN, nombre de apertura (base Lichess CC0), Stockfish 17.1 con 1–5 líneas (MultiPV) y barra de evaluación. Probabilidades de ganar, empatar y perder (W/D/L). Editor de posición y lectura de posiciones desde capturas de tableros digitales. Enlaces compartibles: `#pgn=<PGN codificado>` o `#fen=<FEN>`.
-- **Informe de partida**: análisis completo con Stockfish (profundidad 10/14/18), precisión por jugador con las fórmulas de Lichess, imprecisiones, errores y errores graves marcados en la notación, la mejor línea del motor añadida como variante y gráfica de evaluación navegable.
-- **Partidas**: importación directa desde Lichess o Chess.com por usuario (descarga, analiza con Stockfish las que no traigan evaluación y entrena a tu doble con un solo botón; la conexión solo se hace al pulsarlo), base local en IndexedDB y «Tus estadísticas» (mapa de calor de tus errores, errores por fase, primera pieza que pierdes, cuándo rendirse y nivel estimado por partida; analiza en lote las partidas pendientes); importa archivos PGN con muchas partidas (arrastrar y soltar), búsqueda, filtros y orden por columnas. Las partidas contra el motor y por invitación se guardan solas.
-- **Repertorio**: guarda líneas desde el análisis (con blancas o negras) y practícalas con repetición espaciada; «Mi árbol» resume tus partidas por posición (qué juegas y cómo puntúa); «Maestros» es un explorador con millones de partidas de jugadores 2400+ que cubre todas las aperturas con nombre y permite saltar a cualquiera; explorador de 3.865 aperturas.
-- **Entrenar**: camino por fases, lecciones de piezas, diagnóstico de seis posiciones, puzzles con escaneo CCT obligatorio y su partida de origen, contrarreloj, drill de visión, biblioteca de mates y «Mis errores» (tus fallos como puzzles), «Adivina la jugada» con puntuación de Stockfish y diario de errores con los intentos reales.
-- **Jugar**: partida lenta contra un bot que empieza en su nivel mínimo (≈250) y se adapta a tus resultados (bajo 1320 imita a un jugador más débil eligiendo entre las candidatas de Stockfish con imprecisión y errores; al entrar por primera vez, Inicio te pide jugar esa partida), **contra tu doble** (un rival entrenado con tus partidas: repite tus aperturas y, fuera de ellas, elige entre las candidatas de Stockfish según tu perfil de errores por fase; es un modelo estadístico, no una red neuronal) y partidas P2P por invitación (`npm run server` arranca el PeerServer local).
-
-## Diseño
-
-Dirección visual «Panel de salidas»: GodChess se lee como el panel de una sala de torneo. Las cifras importantes (evaluación, precisión, contadores, relojes) van en celdas de paleta que giran al cambiar; el ámbar marca lo activo y los errores «?», el rojo los errores graves «??». Edición oscura por defecto y edición de día; tableros Acero, Diagrama, Madera y Verde. Tipografía Archivo autoalojada. Detalles en `DESIGN.md`.
-
-## Impeccable
-
-Se instaló con `npx skills add pbakaus/impeccable`. Se aplicó el flujo `init → layout → typeset → colorize → animate → critique → polish`. La auditoría del detector terminó con `impeccable detect --json` → `[]`. Verificación: `npm run build` y `npm test` pasan (32 tests).
-
-## Publicar en GitHub Pages
-
-1. Sube el repositorio a GitHub (rama `main`).
-2. En el repositorio: **Settings → Pages → Source: GitHub Actions**.
-3. Cada `push` a `main` ejecuta `.github/workflows/pages.yml`: instala, pasa los tests, construye y publica en `https://<usuario>.github.io/<repositorio>/`.
-
-Todo funciona como archivos estáticos: rutas relativas (`base: './'`), Stockfish en WebAssembly y datos en `public/data/`. Pages no permite cabeceras COOP/COEP, así que `public/coi-serviceworker.js` las añade desde el navegador y Stockfish corre multihilo (la primera visita recarga la página una vez). Las invitaciones funcionan en Pages: usan el servidor público de señalización de PeerJS (en local, el PeerServer propio de `npm run server`).
-
-## Cuentas, amigos y sincronización
-
-El acceso es obligatorio: sin sesión solo se ve la landing pública. Las cuentas usan Supabase (email y contraseña, Google o GitHub). Con sesión, tus partidas, repertorio, progreso, preferencias y tu doble se sincronizan con tu cuenta, y en **Jugar → Amigos** puedes buscar jugadores, añadirlos y retarlos: el reto abre una partida directa entre los dos navegadores. La seguridad la ponen las reglas de Row Level Security de `supabase/schema.sql`: cada usuario solo puede leer y cambiar lo suyo. Cómo configurarlo: `supabase/README.md`.
-
-## Asistente
-
-El botón **Asistente** de la cabecera responde preguntas sobre la partida abierta y tus estadísticas («¿qué táctica encontraste?», «¿cuáles fueron mis mejores jugadas?», «¿cómo evito esos errores?»). Siempre funciona: responde con el informe de Stockfish, la autopsia, tus estadísticas y una guía de consejos por tipo de error. Si el navegador tiene WebGPU (Chrome, Edge), puede activar una IA local (Qwen2.5 1.5B con WebLLM, descarga única de ~1 GB desde Hugging Face) que redacta esas mismas respuestas con más naturalidad; nada sale del navegador.
-
-## Motor y multi-thread
-
-Stockfish 17.1 corre siempre en un Web Worker. Con aislamiento de origen cruzado (`Cross-Origin-Opener-Policy: same-origin` y `Cross-Origin-Embedder-Policy: require-corp`, que `npm run dev` y `npm run preview` ya envían) usa la versión multihilo con hasta 4 hilos, unas 4 veces más rápida; sin esas cabeceras vuelve sola a la versión de un hilo de `public/engine/`. La versión multihilo (~79 MB) no está en git: `npm run engine:copy` (se ejecuta solo antes de `dev`, `build` y `preview`) la copia desde `node_modules/stockfish` a `public/engine/mt/`. Si sirves la app con otro servidor, añade esas dos cabeceras.
-
-## Privacidad
-
-No hay backend de cuentas ni telemetría. Progreso y ajustes irán a localStorage; datos de entrenamiento a IndexedDB. Solo las conexiones que el usuario inicie podrán salir del dispositivo.
-
-## Datasets locales
-
-- Aperturas: `lichess-org/chess-openings` (CC0) vendorizadas en `public/data/openings/` (commit `48a8c0e733facfdc9a3723fe882e51ec28014074`).
-- Puzzles con partida de origen: `mcognetta/lichess-combined-puzzle-game-db` (CC0), muestra de 50.000 puzzles. `npm run puzzles:origins` genera `public/data/puzzles/index.json` (8.790 puzzles repartidos por rating y tema) y `origins.json` (jugadas hasta el puzzle y continuación, jugadores, ratings, ritmo y fecha).
-- Explorador de maestros: Lichess Elite Database (database.nikonoel.fr, partidas de Lichess de jugadores 2400+). Descarga los meses que quieras a `data/raw/lichess_elite_AAAA-MM.zip` y ejecuta `npm run masters:build`: extrae cada mes en paralelo (con caché en `data/raw/partials/`), suma todos y reparte el resultado en 64 archivos en `public/data/masters/shards/`, que la app carga por posición. Cubre todas las aperturas con nombre de `chess-openings` hasta su última jugada, aunque los maestros las jueguen poco; el resto de posiciones necesita 5 o más partidas.
-- Las descargas originales van a `data/raw/` (fuera de git). ChessTempo no se copia: no ofrece descarga masiva autorizada.
+Original downloads belong in data/raw/ and are not committed to Git.

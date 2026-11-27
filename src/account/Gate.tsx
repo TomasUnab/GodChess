@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { schedulePush, syncOnSignIn } from './sync';
 import { Landing } from '../features/landing/Landing';
 import { supabaseConfigured } from './supabase';
@@ -12,7 +12,9 @@ import { useSession } from './session';
  * (#landing previews the landing) and production builds show the landing.
  */
 export function Gate({ children }: { children: ReactNode }) {
-  const { ready, session, init } = useSession();
+  const { ready, session, init, updatePassword } = useSession();
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   useEffect(() => { init(); }, [init]);
   const userId = session?.user.id;
   useEffect(() => {
@@ -31,5 +33,24 @@ export function Gate({ children }: { children: ReactNode }) {
   const preview = typeof window !== 'undefined' && window.location.hash === '#landing';
   if (!supabaseConfigured) return preview || !import.meta.env.DEV ? <Landing /> : <>{children}</>;
   if (!ready) return <div className="gate-loading" role="status">Comprobando tu sesión…</div>;
+  const isRecovery = typeof window !== 'undefined' && new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery';
+  if (isRecovery) {
+    return <main className="landing"><section className="desk" style={{ margin: '4rem auto' }}>
+      <h1>Choose a new password</h1>
+      <form onSubmit={async event => {
+        event.preventDefault();
+        setPasswordMessage(null);
+        const error = await updatePassword(newPassword);
+        setPasswordMessage(error ?? 'Password updated. You can now enter GodChess.');
+        if (!error) window.history.replaceState({}, '', window.location.pathname + window.location.search + '#/');
+      }}>
+        <label className="field">New password
+          <input type="password" minLength={6} required value={newPassword} onChange={event => setNewPassword(event.target.value)} />
+        </label>
+        <button className="primary desk-submit" type="submit">Save password</button>
+      </form>
+      {passwordMessage && <p role="status">{passwordMessage}</p>}
+    </section></main>;
+  }
   return session ? <>{children}</> : <Landing />;
 }

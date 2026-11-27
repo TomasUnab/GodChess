@@ -10,6 +10,7 @@ type SessionState = {
   signIn: (email: string, password: string) => Promise<string | null>;
   oauth: (provider: 'google' | 'github') => Promise<string | null>;
   resetPassword: (email: string) => Promise<string | null>;
+  updatePassword: (password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   updateProfile: (patch: Partial<Omit<Profile, 'id'>>) => Promise<string | null>;
 };
@@ -31,18 +32,48 @@ export function authMessage(message: string) {
 const NOT_CONFIGURED = 'Las cuentas todavía no están configuradas en esta instalación.';
 let sessionInitialized = false;
 
+function clearInvalidAuthStorage() {
+  if (typeof localStorage === 'undefined') return;
+  for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith('sb-') && key.endsWith('-auth-token')) localStorage.removeItem(key);
+  }
+}
+
+function isRecoverableSessionError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /invalid refresh token|refresh token not found|lockmanager lock/i.test(message);
+}
+
 export const useSession = create<SessionState>((set, get) => ({
   ready: !supabase, session: null, profile: null,
   init: () => {
     if (!supabase) return;
     if (sessionInitialized) return;
     sessionInitialized = true;
+    if (typeof window !== 'undefined') {
+      window.addEventListener('unhandledrejection', event => {
+        if (!isRecoverableSessionError(event.reason)) return;
+        event.preventDefault();
+        clearInvalidAuthStorage();
+        set({ ready: true, session: null, profile: null });
+      });
+    }
     const loadProfile = async (session: Session | null) => {
       if (!session) { set({ profile: null }); return; }
       const { data } = await supabase!.from('profiles').select('id, username, display_name, lichess, chesscom').eq('id', session.user.id).maybeSingle();
       set({ profile: data as Profile | null });
     };
-    void supabase.auth.getSession().then(async ({ data }) => { set({ session: data.session }); await loadProfile(data.session); set({ ready: true }); });
+    void supabase.auth.getSession()
+      .then(async ({ data }) => { set({ session: data.session }); await loadProfile(data.session); set({ ready: true }); })
+      .catch(error => {
+        if (!isRecoverableSessionError(error)) {
+          set({ ready: true });
+          return;
+        }
+        clearInvalidAuthStorage();
+        set({ ready: true, session: null, profile: null });
+      });
     supabase.auth.onAuthStateChange((_event, session) => { set({ session }); void loadProfile(session); });
   },
   signUp: async (email, password) => {
@@ -64,6 +95,11 @@ export const useSession = create<SessionState>((set, get) => ({
   resetPassword: async email => {
     if (!supabase) return NOT_CONFIGURED;
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl() });
+    return error ? authMessage(error.message) : null;
+  },
+  updatePassword: async password => {
+    if (!supabase) return NOT_CONFIGURED;
+    const { error } = await supabase.auth.updateUser({ password });
     return error ? authMessage(error.message) : null;
   },
   signOut: async () => { await supabase?.auth.signOut(); set({ session: null, profile: null }); },
