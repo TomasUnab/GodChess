@@ -2,15 +2,15 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Bot, LogOut, Moon, Sun } from 'lucide-react';
 import { useSession } from '../account/session';
 import { useStore, type Area, type BoardTheme } from './store';
-import { HomeView } from '../features/home/HomeView';
-import { AnalysisView } from '../features/analysis/AnalysisView';
-import { GamesView } from '../features/games/GamesView';
-import { RepertoireView } from '../features/repertoire/RepertoireView';
-import { TrainView } from '../features/train/TrainView';
-import { PlayView } from '../features/play/PlayView';
 import { dueEntries } from '../chess/repertoire';
 import { Flap } from '../ui/Flap';
-import { SettingsView } from '../account/SettingsView';
+const HomeView = lazy(() => import('../features/home/HomeView').then(m => ({ default: m.HomeView })));
+const AnalysisView = lazy(() => import('../features/analysis/AnalysisView').then(m => ({ default: m.AnalysisView })));
+const GamesView = lazy(() => import('../features/games/GamesView').then(m => ({ default: m.GamesView })));
+const RepertoireView = lazy(() => import('../features/repertoire/RepertoireView').then(m => ({ default: m.RepertoireView })));
+const TrainView = lazy(() => import('../features/train/TrainView').then(m => ({ default: m.TrainView })));
+const PlayView = lazy(() => import('../features/play/PlayView').then(m => ({ default: m.PlayView })));
+const SettingsView = lazy(() => import('../account/SettingsView').then(m => ({ default: m.SettingsView })));
 // The assistant (and the optional WebLLM it can load) is split out of the main bundle.
 const CoachPanel = lazy(() => import('../coach/CoachPanel').then(m => ({ default: m.CoachPanel })));
 
@@ -64,7 +64,9 @@ export function App() {
         </button>
       </header>
       <main id="main" className={`main area-${area}`} tabIndex={-1}>
+<Suspense fallback={<div className="gate-loading" aria-live="polite">Cargando sección…</div>}>
         {area === 'home' ? <HomeView /> : area === 'analysis' ? <AnalysisView /> : area === 'games' ? <GamesView /> : area === 'repertoire' ? <RepertoireView /> : area === 'train' ? <TrainView /> : area === 'settings' ? <SettingsView /> : <PlayView />}
+</Suspense>
       </main>
       {coach && <Suspense fallback={null}><CoachPanel onClose={() => setCoach(false)} /></Suspense>}
     </div>
