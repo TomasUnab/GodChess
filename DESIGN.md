@@ -2,6 +2,10 @@
 name: GodChess
 description: Analizador y entrenador de ajedrez local, leído como el panel de salidas de una sala de torneo.
 colors:
+  quality-brilliant: "#26c2a3"
+  quality-good: "#8fbf6a"
+  quality-book: "#a88865"
+  quality-inaccuracy: "#e6c34a"
   steel-ground: "#16181b"
   steel-ground-raised: "#1f2226"
   steel-well: "#0f1113"
@@ -392,3 +396,5 @@ Controles a .15s ease-out, barras a .35s, aviso a .2s, paleta a .26s, esqueleto 
 - **Don't** usar ámbar o rojo como decoración o para señales que no sean «ahora» o gravedad.
 - **Don't** poner frases o párrafos en paletas.
 - **Don't** volver al papel prensa de «Columna de ajedrez» ni al carbón cálido tipo Lichess.
+
+**Calidad de jugada.** En Estadísticas, cada categoría lleva su color de dato (solo como muestra junto a un glifo y una cifra, nunca como fondo de texto): brillante #26c2a3, mejor #3ccf6e, excelente y buena #8fbf6a, teoría #a88865, imprecisión #e6c34a, error #ffb000, error grave #ff4d5a.

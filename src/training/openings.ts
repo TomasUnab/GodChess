@@ -1,9 +1,10 @@
+import { asset } from '../app/paths';
 export type Opening = { eco: string; name: string; pgn: string };
 const files = ['a', 'b', 'c', 'd', 'e'];
 let cached: Promise<Opening[]> | null = null;
 
 export function loadOpenings(): Promise<Opening[]> {
-  cached ??= Promise.all(files.map(file => fetch(`/data/openings/${file}.tsv`).then(r => { if (!r.ok) throw new Error(`openings ${file}: ${r.status}`); return r.text(); })))
+  cached ??= Promise.all(files.map(file => fetch(asset(`data/openings/${file}.tsv`)).then(r => { if (!r.ok) throw new Error(`openings ${file}: ${r.status}`); return r.text(); })))
     .then(texts => texts.flatMap(text => text.split('\n').slice(1).map(line => line.split('\t')).filter(([eco, name]) => eco && name).map(([eco, name, pgn]) => ({ eco, name, pgn: pgn?.trim() ?? '' }))))
     .catch(error => { cached = null; throw error; });
   return cached;

@@ -33,3 +33,27 @@ describe('tu doble', () => {
     expect(['e2e4', 'd2d4', 'g2g4']).not.toContain(blunder?.uci);
   });
 });
+
+import { measureFidelity, mistakeOfType } from './clone';
+describe('tu doble: tipo de error, estilo y parecido', () => {
+  it('reproduces a hanging-piece mistake when asked', () => {
+    // White knight on f3 is defended; moving the e-pawn or similar must leave a piece en prise.
+    const fen = 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3';
+    const uci = mistakeOfType(fen, 'pieza colgada', [], () => 0);
+    expect(uci).not.toBeNull();
+  });
+
+  it('misses a mate on purpose for "mate fallado"', () => {
+    const candidates = [{ uci: 'h5f7', score: { mate: 1 } }, { uci: 'd2d3', score: { cp: 50 } }];
+    expect(mistakeOfType('r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4', 'mate fallado', candidates)).toBe('d2d3');
+  });
+
+  it('measures fidelity on games it did not train on', () => {
+    const many = Array.from({ length: 10 }, (_, i) => ({ pgn: `[White "Tú"]\n[Black "R${i}"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bc4 *`, white: 'Tú', black: `R${i}`, result: '*', date: '' }));
+    const fidelity = buildClone(many, g => g.white === 'Tú' ? 'w' : null).fidelity!;
+    expect(fidelity.testGames).toBe(2);
+    expect(fidelity.book.total).toBeGreaterThan(0);
+    expect(fidelity.book.hits).toBe(fidelity.book.total);
+    expect(measureFidelity([])).toBeNull();
+  });
+});

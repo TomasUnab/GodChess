@@ -1,3 +1,4 @@
+import { siteBase } from '../app/paths';
 import type { EngineInfo, EngineMessage, EngineRequest, EngineResult } from './protocol';
 
 type Pending = { id: number; resolve: (value: EngineResult) => void; reject: (reason: Error) => void; timer: number };
@@ -30,7 +31,7 @@ export class EngineClient {
         if (data.type === 'result') this.settle(data.id, undefined, data.result);
         if (data.type === 'info' && data.id === this.streamId && this.onLines) this.collect(data.info);
       };
-      this.post({ type: 'init' });
+      this.post({ type: 'init', base: siteBase() });
     });
     return this.ready;
   }

@@ -32,6 +32,18 @@ Dirección visual «Panel de salidas»: GodChess se lee como el panel de una sal
 
 Se instaló con `npx skills add pbakaus/impeccable`. Se aplicó el flujo `init → layout → typeset → colorize → animate → critique → polish`. La auditoría del detector terminó con `impeccable detect --json` → `[]`. Verificación: `npm run build` y `npm test` pasan (32 tests).
 
+## Publicar en GitHub Pages
+
+1. Sube el repositorio a GitHub (rama `main`).
+2. En el repositorio: **Settings → Pages → Source: GitHub Actions**.
+3. Cada `push` a `main` ejecuta `.github/workflows/pages.yml`: instala, pasa los tests, construye y publica en `https://<usuario>.github.io/<repositorio>/`.
+
+Todo funciona como archivos estáticos: rutas relativas (`base: './'`), Stockfish en WebAssembly y datos en `public/data/`. Pages no permite cabeceras COOP/COEP, así que `public/coi-serviceworker.js` las añade desde el navegador y Stockfish corre multihilo (la primera visita recarga la página una vez). «Invitar a alguien» no funciona en Pages: necesita el PeerServer local (`npm run server`).
+
+## Asistente
+
+El botón **Asistente** de la cabecera responde preguntas sobre la partida abierta y tus estadísticas («¿qué táctica encontraste?», «¿cuáles fueron mis mejores jugadas?», «¿cómo evito esos errores?»). Siempre funciona: responde con el informe de Stockfish, la autopsia, tus estadísticas y una guía de consejos por tipo de error. Si el navegador tiene WebGPU (Chrome, Edge), puede activar una IA local (Qwen2.5 1.5B con WebLLM, descarga única de ~1 GB desde Hugging Face) que redacta esas mismas respuestas con más naturalidad; nada sale del navegador.
+
 ## Motor y multi-thread
 
 Stockfish 17.1 corre siempre en un Web Worker. Con aislamiento de origen cruzado (`Cross-Origin-Opener-Policy: same-origin` y `Cross-Origin-Embedder-Policy: require-corp`, que `npm run dev` y `npm run preview` ya envían) usa la versión multihilo con hasta 4 hilos, unas 4 veces más rápida; sin esas cabeceras vuelve sola a la versión de un hilo de `public/engine/`. La versión multihilo (~79 MB) no está en git: `npm run engine:copy` (se ejecuta solo antes de `dev`, `build` y `preview`) la copia desde `node_modules/stockfish` a `public/engine/mt/`. Si sirves la app con otro servidor, añade esas dos cabeceras.

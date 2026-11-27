@@ -11,7 +11,7 @@ import { addLine, loadRepertoire, removeEntry, review, saveRepertoire, type Repe
 
 export type Area = 'home' | 'analysis' | 'games' | 'repertoire' | 'train' | 'play';
 export type TrainSection = 'path' | 'lesson' | 'diagnosis' | 'puzzles' | 'blitz' | 'mistakes' | 'guess' | 'vision' | 'mates' | 'journal';
-export type PlaySection = 'engine' | 'clone' | 'invite';
+export type PlaySection = 'engine' | 'clone' | 'live' | 'invite';
 export type RepertoireSection = 'mine' | 'practice' | 'tree' | 'masters' | 'explorer';
 export type Theme = 'day' | 'night';
 type Scan = { checks: boolean; captures: boolean; threats: boolean };
@@ -71,7 +71,8 @@ type Store = {
   calibrate: (correct: number) => void;
   recordPuzzleAttempt: (solved: boolean, puzzleId: string, rating: number, move?: string) => void;
   recordGameOutcome: (tag?: ErrorTag) => void;
-  recordBotResult: (result: 'win' | 'draw' | 'loss') => number; recordVisionAttempt: (correct: boolean) => void; recordCctFailure: () => void; useHint: (level: 1 | 2) => void;
+  recordBotResult: (result: 'win' | 'draw' | 'loss') => number;
+  setBotLevel: (level: number) => void; recordVisionAttempt: (correct: boolean) => void; recordCctFailure: () => void; useHint: (level: 1 | 2) => void;
 };
 
 const persistTree = (tree: GameTree, gameId?: number) => writeJson(ANALYSIS_KEY, { pgn: toPgn(tree), gameId });
@@ -172,6 +173,7 @@ export const useStore = create<Store>((set, get) => {
       void addPuzzleAttempt({ puzzleId, solved, rating, move, createdAt: new Date().toISOString() }).catch(() => undefined);
     },
     recordGameOutcome: tag => withTraining(state => recordGame(state, tag)),
+    setBotLevel: level => withTraining(state => ({ ...state, botLevel: Math.max(MIN_LEVEL, Math.min(2400, Math.round(level / 10) * 10)) })),
     recordBotResult: result => {
       const level = nextLevel(get().training.botLevel ?? MIN_LEVEL, result);
       withTraining(state => ({ ...state, botLevel: level, botGames: (state.botGames ?? 0) + 1 }));

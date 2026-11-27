@@ -18,6 +18,7 @@ import { OriginPanel } from './OriginPanel';
 import { CctScan } from './CctScan';
 import { BlitzView } from './BlitzView';
 import type { ErrorTag } from '../../training/model';
+import { asset } from '../../app/paths';
 
 const sections: { id: TrainSection; label: string }[] = [
   { id: 'path', label: 'Camino' }, { id: 'diagnosis', label: 'Diagnóstico' }, { id: 'puzzles', label: 'Puzzles CCT' }, { id: 'blitz', label: 'Contrarreloj' }, { id: 'mistakes', label: 'Mis errores' }, { id: 'guess', label: 'Adivina la jugada' },
@@ -285,7 +286,7 @@ function Mates() {
   const [catalog, setCatalog] = useState<typeof mateLibrary>([]);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [fen, setFen] = useState<string | null>(null);
-  useEffect(() => { fetch('/data/mates/index.json').then(r => r.json()).then(data => setCatalog(data.puzzles)).catch(() => setCatalog(mateLibrary)); }, []);
+  useEffect(() => { fetch(asset('data/mates/index.json')).then(r => r.json()).then(data => setCatalog(data.puzzles)).catch(() => setCatalog(mateLibrary)); }, []);
   const current = catalog.find(item => item.theme === theme && item.index === index + 1) ?? mateLibrary.find(item => item.theme === theme && item.index === index + 1)!;
   useEffect(() => { setMessage(null); setFen(null); }, [theme, index]);
   const drop = (from: string, to: string, promotion?: string) => {

@@ -13,6 +13,7 @@ let currentLines = new Map<number, EngineInfo>();
 const post = (message: EngineMessage) => self.postMessage(message);
 let threads = 1;
 let triedMulti = false;
+let base = '/';
 let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
 
 /**
@@ -26,7 +27,7 @@ function start_engine() {
   try {
     engine?.terminate();
     uciReady = false;
-    engine = new Worker(multi ? '/engine/mt/stockfish.js' : '/engine/stockfish.js');
+    engine = new Worker(new URL(multi ? 'engine/mt/stockfish.js' : 'engine/stockfish.js', base).href);
     threads = multi ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1;
     engine.onmessage = (e) => forwardUci(String(e.data));
     // A threaded build that loads but never answers (memory, old browser) falls back too.
@@ -57,7 +58,7 @@ function start(id: number, commands: string[]) {
 self.onmessage = (event: MessageEvent<EngineRequest>) => {
   const message = event.data;
   switch (message.type) {
-    case 'init': start_engine(); return;
+    case 'init': base = message.base; start_engine(); return;
     case 'setStrength':
       send(`setoption name Skill Level value ${message.skill}`); send('setoption name UCI_LimitStrength value true'); send(`setoption name UCI_Elo value ${message.uciElo}`);
       return;

@@ -6,6 +6,7 @@ import { xrayHighlights } from '../../chess/tactics';
 import { MIN_LEVEL, pickBotMove, STOCKFISH_FLOOR } from '../../chess/adaptiveBot';
 import { Flap } from '../../ui/Flap';
 import { CloneView } from './CloneView';
+import { LiveView } from './LiveView';
 import { StageTools } from './StageTools';
 import { XrayKey } from '../../ui/XrayKey';
 import { useStore } from '../../app/store';
@@ -16,7 +17,9 @@ import type { ErrorTag } from '../../training/model';
 import { localPeerConfig, peerUnavailableMessage } from '../../social/peerConfig';
 import { saveGameRecord } from '../../social/gameRecord';
 import { clockExpired, formatClock, tickClock } from '../../social/clocks';
-import { putGame, recordFromTree } from '../../storage/games';
+import { listGames, putGame, recordFromTree } from '../../storage/games';
+import { currentRating, ratingHistory } from '../../chess/platformRating';
+import { detectSide } from '../../training/autopsy';
 import { parsePgn } from '../../chess/pgn';
 import { today } from '../../chess/tree';
 
@@ -26,10 +29,10 @@ export function PlayView() {
   return (
     <div ref={stage} className={`page play play-stage ${prefs.focusMode ? 'focus' : ''}`}>
       <div className="play-head">
-        <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'invite', label: 'Invitar a alguien' }]} />
+        <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'live', label: 'En vivo' }, { id: 'invite', label: 'Invitar a alguien' }]} />
         <StageTools stage={stage} />
       </div>
-      {playSection === 'engine' ? <EngineGame /> : playSection === 'clone' ? <CloneView /> : <InviteGame />}
+      {playSection === 'engine' ? <EngineGame /> : playSection === 'clone' ? <CloneView /> : playSection === 'live' ? <LiveView /> : <InviteGame />}
     </div>
   );
 }
@@ -38,7 +41,9 @@ const TAGS: ErrorTag[] = ['pieza colgada', 'amenaza no vista', 'mate fallado', '
 const outcome = (game: Chess) => game.isCheckmate() ? (game.turn() === 'w' ? '0-1' : '1-0') : game.isDraw() || game.isStalemate() ? '1/2-1/2' : '*';
 
 function EngineGame() {
-  const { training, recordGameOutcome, recordBotResult, loadGame, prefs, setPrefs } = useStore();
+  const { training, recordGameOutcome, recordBotResult, setBotLevel, loadGame, prefs, setPrefs } = useStore();
+  const [real, setReal] = useState<{ rating: number; platform: string; speed: string } | null>(null);
+  useEffect(() => { listGames().then(rows => setReal(currentRating(ratingHistory(rows, g => detectSide({ White: g.white, Black: g.black }, prefs.playerName))))).catch(() => undefined); }, [prefs.playerName]);
   // The bot's level adapts to your results; it starts at the minimum.
   const elo = training.botLevel ?? MIN_LEVEL;
   const firstGame = !training.botGames;
@@ -104,6 +109,9 @@ function EngineGame() {
           <div className="stat"><dt>Nivel del bot</dt><dd><Flap value={String(elo)} tone="warn" /></dd><dd className="stat-note">{training.botGames ?? 0} {(training.botGames ?? 0) === 1 ? 'partida jugada' : 'partidas jugadas'}</dd></div>
         </dl>
         {levelNote && <p className="verdict-line good" role="status">{levelNote}</p>}
+        {real && Math.abs(real.rating - elo) >= 50 && !thinking && game.current.history().length === 0 && (
+          <p className="advice">Tu Elo {real.speed} en {real.platform} es {real.rating}. <button className="link" onClick={() => setBotLevel(real.rating)}>Ajustar el bot a {real.rating}</button> (después seguirá adaptándose a tus resultados).</p>
+        )}
         <p className="moves-inline">{history.length ? history.map((san, index) => index % 2 === 0 ? `${index / 2 + 1}.${san}` : san).join(' ') : 'Aún no hay jugadas.'}</p>
         {over === '0-1' ? (
           <div className="closing">

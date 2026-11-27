@@ -6,6 +6,10 @@
     <meta name="theme-color" content="#161616" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>GodChess · Entrenamiento local</title>
+    <!-- GitHub Pages can't send COOP/COEP headers; this service worker adds them so
+         Stockfish can run multi-threaded. Locally Vite already sends them and it does nothing. -->
+    <script>window.coi = { shouldRegister: () => !window.crossOriginIsolated && location.hostname !== 'localhost' };</script>
+    <script src="./coi-serviceworker.js"></script>
   </head>
   <body>
     <div id="root"></div>

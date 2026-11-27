@@ -3,7 +3,7 @@ export type EngineScore = { cp?: number; mate?: number };
 export type EngineInfo = { depth: number; score: EngineScore; pv: string[]; multipv?: number; nodes?: number; nps?: number; wdl?: [number, number, number] };
 export type EngineResult = EngineInfo & { bestMove: string; lines?: EngineInfo[] };
 export type EngineRequest =
-  | { type: 'init' }
+  | { type: 'init'; base: string }
   | { type: 'setStrength'; skill: number; uciElo: number; movetime: number }
   | { type: 'fullStrength' }
   | { type: 'analyze'; id: number; fen: string; depth: number }

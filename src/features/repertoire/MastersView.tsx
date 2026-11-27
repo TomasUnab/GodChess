@@ -8,6 +8,7 @@ import { figurine, positionKey } from '../../chess/tree';
 import { shardOf } from '../../chess/shard';
 import { buildOpeningIndex, detectOpening, loadOpenings, sanLine, searchOpenings, type Opening } from '../../training/openings';
 import { spanishOpening } from '../../training/openingNames';
+import { asset } from '../../app/paths';
 
 /** [san, games, white wins, draws, black wins, average rating] */
 type MasterMove = [string, number, number, number, number, number];
@@ -15,14 +16,14 @@ type Meta = { source: string; months: string[]; games: number; plies: number; po
 
 let meta: Promise<Meta> | null = null;
 const shards = new Map<number, Promise<Record<string, MasterMove[]>>>();
-const loadMeta = () => (meta ??= fetch('/data/masters/meta.json').then(r => { if (!r.ok) throw new Error('masters'); return r.json() as Promise<Meta>; }).catch(error => { meta = null; throw error; }));
+const loadMeta = () => (meta ??= fetch(asset('data/masters/meta.json')).then(r => { if (!r.ok) throw new Error('masters'); return r.json() as Promise<Meta>; }).catch(error => { meta = null; throw error; }));
 /** Each position lives in one of 64 small files; only the one needed is fetched. */
 function movesFor(fen: string): Promise<MasterMove[]> {
   const key = positionKey(fen);
   const index = shardOf(key);
   let shard = shards.get(index);
   if (!shard) {
-    shard = fetch(`/data/masters/shards/${String(index).padStart(2, '0')}.json`).then(r => { if (!r.ok) throw new Error('shard'); return r.json(); });
+    shard = fetch(asset(`data/masters/shards/${String(index).padStart(2, '0')}.json`)).then(r => { if (!r.ok) throw new Error('shard'); return r.json(); });
     shard.catch(() => shards.delete(index));
     shards.set(index, shard);
   }

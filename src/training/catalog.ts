@@ -1,6 +1,7 @@
 import { prepareLichessPuzzle, type LichessPuzzleRow, type PreparedPuzzle } from './lichess';
 import { Chess } from 'chess.js';
 import { puzzles } from './puzzles';
+import { asset } from '../app/paths';
 
 
 /** Small offline seed used to paint diagnosis immediately while the full index loads. */
@@ -48,7 +49,7 @@ const prepared = new Map<string, PreparedPuzzle>();
  * froze the page for seconds, so only the puzzle actually shown is prepared.
  */
 export function loadPuzzleRows(): Promise<LichessPuzzleRow[]> {
-  rows ??= fetch('/data/puzzles/index.json')
+  rows ??= fetch(asset('data/puzzles/index.json'))
     .then(response => { if (!response.ok) throw new Error(`Puzzle catalog unavailable: ${response.status}`); return response.json() as Promise<{ puzzles: RawRow[] }>; })
     // The index stores the id as `id`; the app keys reviews by `puzzleId`.
     .then(data => data.puzzles.map(row => ({ ...row, puzzleId: row.puzzleId ?? row.id ?? '' })))
@@ -85,7 +86,7 @@ export function chooseDuePuzzle<T extends Selectable>(catalog: T[], dueIds: stri
 export type PuzzleOrigin = { moves: string; rest: string; white: string; whiteElo?: number; black: string; blackElo?: number; speed?: string; date?: string; opening?: string; winner?: string };
 let origins: Promise<Record<string, PuzzleOrigin>> | null = null;
 export function loadOrigin(id: string): Promise<PuzzleOrigin | null> {
-  origins ??= fetch('/data/puzzles/origins.json').then(r => { if (!r.ok) throw new Error('origins'); return r.json(); }).then(data => data.origins).catch(error => { origins = null; throw error; });
+  origins ??= fetch(asset('data/puzzles/origins.json')).then(r => { if (!r.ok) throw new Error('origins'); return r.json(); }).then(data => data.origins).catch(error => { origins = null; throw error; });
   return origins.then(map => map[id] ?? null);
 }
 

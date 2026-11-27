@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Bot, Moon, Sun } from 'lucide-react';
 import { useStore, type Area, type BoardTheme } from './store';
 import { HomeView } from '../features/home/HomeView';
 import { AnalysisView } from '../features/analysis/AnalysisView';
@@ -9,6 +9,8 @@ import { TrainView } from '../features/train/TrainView';
 import { PlayView } from '../features/play/PlayView';
 import { dueEntries } from '../chess/repertoire';
 import { Flap } from '../ui/Flap';
+// The assistant (and the optional WebLLM it can load) is split out of the main bundle.
+const CoachPanel = lazy(() => import('../coach/CoachPanel').then(m => ({ default: m.CoachPanel })));
 
 const AREAS: { id: Area; label: string }[] = [
   { id: 'home', label: 'Inicio' }, { id: 'analysis', label: 'Análisis' }, { id: 'games', label: 'Partidas' },
@@ -19,6 +21,7 @@ const dateline = () => new Date().toLocaleDateString('es', { weekday: 'long', da
 
 export function App() {
   const { area, go, prefs, setPrefs, repertoire } = useStore();
+  const [coach, setCoach] = useState(false);
   const due = dueEntries(repertoire).length;
   useEffect(() => { document.documentElement.dataset.theme = prefs.theme === 'night' ? 'dark' : 'light'; }, [prefs.theme]);
   useEffect(() => { document.documentElement.dataset.board = prefs.board; }, [prefs.board]);
@@ -46,6 +49,7 @@ export function App() {
           ))}
         </nav>
         <span className="dateline">{dateline()}</span>
+        <button className={`edition coach-toggle ${coach ? 'on' : ''}`} onClick={() => setCoach(v => !v)} aria-pressed={coach} title="Pregunta por tu partida o tu juego"><Bot size={16} /><span>Asistente</span></button>
         <label className="board-pick"><span>Tablero</span>
           <select value={prefs.board} onChange={event => setPrefs({ board: event.target.value as BoardTheme })} aria-label="Estilo del tablero">
             <option value="steel">Acero</option><option value="diagram">Diagrama</option><option value="wood">Madera</option><option value="green">Verde</option>
@@ -58,6 +62,7 @@ export function App() {
       <main id="main" className={`main area-${area}`} tabIndex={-1}>
         {area === 'home' ? <HomeView /> : area === 'analysis' ? <AnalysisView /> : area === 'games' ? <GamesView /> : area === 'repertoire' ? <RepertoireView /> : area === 'train' ? <TrainView /> : <PlayView />}
       </main>
+      {coach && <Suspense fallback={null}><CoachPanel onClose={() => setCoach(false)} /></Suspense>}
     </div>
   );
 }

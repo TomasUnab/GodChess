@@ -7,6 +7,8 @@ import react from '@vitejs/plugin-react';
 const isolation = { 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' };
 
 export default defineConfig({
+  // Relative base: the same build works at a domain root or under a GitHub Pages subpath.
+  base: './',
   plugins: [react()],
   server: { headers: isolation },
   preview: { headers: isolation },
@@ -15,6 +17,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
+          if (id.includes('/@mlc-ai/')) return 'webllm';
           if (id.includes('/react/') || id.includes('/react-dom/')) return 'react';
           if (id.includes('/chess.js/') || id.includes('/chessground/')) return 'chess';
           if (id.includes('/peerjs/') || id.includes('/ws/')) return 'collaboration';

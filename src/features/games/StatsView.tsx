@@ -4,9 +4,13 @@ import { useStore } from '../../app/store';
 import { Flap } from '../../ui/Flap';
 import { listGames, putGame, type StoredGame } from '../../storage/games';
 import { detectSide } from '../../training/autopsy';
-import { playerStats, type Phase } from '../../chess/stats';
+import { lostTotal, playerStats, type LossKinds, type Phase } from '../../chess/stats';
+import { currentRating, ratingHistory } from '../../chess/platformRating';
 import { parsePgn, toPgn } from '../../chess/pgn';
-import { mainline } from '../../chess/tree';
+import { mainline, positionKey } from '../../chess/tree';
+import { Chess } from 'chess.js';
+import { loadOpenings, type Opening } from '../../training/openings';
+import type { PlayerStats, Quality } from '../../chess/stats';
 import { applyAnalysis, summarize, type PositionAnalysis } from '../../chess/report';
 import { sharedEngine } from '../../engine/client';
 
@@ -27,7 +31,10 @@ export function StatsView() {
   const sideOf = (game: { white: string; black: string }) => detectSide({ White: game.white, Black: game.black }, prefs.playerName);
   const mine = (games ?? []).filter(game => sideOf(game));
   const pending = mine.filter(game => !hasEvals(game.pgn) && game.plies > 6);
-  const stats = useMemo(() => playerStats(mine, game => sideOf(game)), [games, prefs.playerName]);
+  const [bookKeys, setBookKeys] = useState<Set<string> | undefined>();
+  useEffect(() => { loadOpenings().then(rows => setBookKeys(openingPositions(rows))).catch(() => undefined); }, []);
+  const stats = useMemo(() => playerStats(mine, game => sideOf(game), bookKeys), [games, prefs.playerName, bookKeys]);
+  const real = useMemo(() => currentRating(ratingHistory(mine, sideOf)), [games, prefs.playerName]);
 
   /** Analyses every pending game at depth 10 with the shared engine and saves the evals into its PGN. */
   const analyseAll = async () => {
@@ -68,7 +75,8 @@ export function StatsView() {
   const totals = (['w', 'b'] as const).map(side => stats.results[side]);
   const won = totals.reduce((s, r) => s + r.win, 0), drawn = totals.reduce((s, r) => s + r.draw, 0), lost = totals.reduce((s, r) => s + r.loss, 0);
   const atRisk = stats.comebacks.lost + stats.comebacks.saved + stats.comebacks.won;
-  const firstLost = Object.entries(stats.firstLost).sort((a, b) => b[1] - a[1]);
+  const firstLost = Object.entries(stats.firstLost).filter((e): e is [string, LossKinds] => !!e[1]).sort((a, b) => lostTotal(b[1]) - lostTotal(a[1]));
+  const gifts = firstLost.reduce((sum, [, k]) => sum + k.gift, 0), trades = firstLost.reduce((sum, [, k]) => sum + k.trade, 0), allLost = firstLost.reduce((sum, [, k]) => sum + lostTotal(k), 0);
 
   return (
     <div className="stats-view">
@@ -76,13 +84,16 @@ export function StatsView() {
         <div className="stat"><dt>Tus partidas</dt><dd><Flap value={String(stats.games)} /></dd><dd className="stat-note">{stats.analysed} {stats.analysed === 1 ? "analizada" : "analizadas"}</dd></div>
         <div className="stat"><dt>Ganadas · tablas · perdidas</dt><dd><Flap value={`${won} ${drawn} ${lost}`} /></dd></div>
         <div className="stat"><dt>Duración media</dt><dd><Flap value={String(lengths)} /></dd><dd className="stat-note">jugadas</dd></div>
-        <div className="stat"><dt>Nivel estimado</dt><dd><Flap value={eloNow ? String(eloNow) : '-'} tone="warn" /></dd><dd className="stat-note">media de las últimas 5 analizadas</dd></div>
+        {real
+          ? <div className="stat"><dt>Tu Elo</dt><dd><Flap value={String(real.rating)} tone="warn" /></dd><dd className="stat-note">{real.speed} en {real.platform}{eloNow ? ` · por precisión ≈ ${eloNow}` : ''}</dd></div>
+          : <div className="stat"><dt>Nivel estimado</dt><dd><Flap value={eloNow ? String(eloNow) : '-'} tone="warn" /></dd><dd className="stat-note">media de las últimas 5 analizadas</dd></div>}
       </dl>
       {pending.length > 0 && (
         <p className="advice">{pending.length} {pending.length === 1 ? 'partida tuya sin analizar' : 'partidas tuyas sin analizar'}: sin análisis no cuentan para errores, mapa ni nivel.{' '}
           {batch ? <span className="meta-line">Analizando {batch.game} de {batch.games}…</span> : <button className="link" onClick={() => void analyseAll()}><Gauge size={14} /> Analizar todas ahora (profundidad 10)</button>}
         </p>
       )}
+      <QualitySection stats={stats} onOpen={id => { const game = games.find(g => g.id === id); if (game) useStore.getState().loadGame(game.pgn, { gameId: id, at: 'start' }); }} />
       <div className="stats-grid">
         <section>
           <div className="section-row">
@@ -110,13 +121,30 @@ export function StatsView() {
               return <tr key={phase}><td>{label}</td><td className="num bad">{row.blunders}</td><td className="num">{row.mistakes}</td><td className="num">{row.moves ? rate.toFixed(1).replace('.', ',') : '—'}</td></tr>;
             })}</tbody>
           </table>
+          <h2 className="section-title list-title">Piezas que más pierdes</h2>
+          <LostTable lost={stats.allLost} note="Todas las piezas tuyas capturadas en tus partidas, peones incluidos." />
           <h2 className="section-title list-title">Primera pieza que pierdes</h2>
-          {firstLost.length ? <ul className="bars">{firstLost.map(([piece, count]) => <li key={piece}><span>{PIECES[piece] ?? piece}</span><i style={{ width: `${(count / firstLost[0][1]) * 100}%` }} className={count === firstLost[0][1] ? 'top' : ''} /><b>{count}</b></li>)}</ul> : <p className="muted">Todavía no hay datos.</p>}
+          {firstLost.length ? <>
+            <table className="rep-table lost-table">
+              <thead><tr><th>Pieza</th><th className="num">Veces</th><th className="num" title="Recuperaste material igual o mayor justo antes o después">Cambios</th><th className="num" title="Sin recuperar nada y la evaluación cayó 1,5 peones o más">Regaladas</th><th className="num" title="Sin recuperar material pero la evaluación se mantuvo: trampa o sacrificio que funcionó">Sacrificios</th><th className="num" title="Partida sin analizar: no se puede saber si fue regalo o sacrificio">Sin analizar</th></tr></thead>
+              <tbody>{firstLost.map(([piece, k]) => (
+                <tr key={piece}><td>{PIECES[piece] ?? piece}</td><td className="num">{lostTotal(k)}</td><td className="num">{k.trade}</td><td className={`num ${k.gift ? 'bad' : ''}`}>{k.gift}</td><td className={`num ${k.sacrifice ? 'good' : ''}`}>{k.sacrifice}</td><td className="num muted">{k.unknown}</td></tr>
+              ))}</tbody>
+            </table>
+            <p className="small-note muted">Es la primera pieza (sin contar peones) que te capturan en cada partida. «Cambios» no son errores: recuperaste lo mismo o más. Lo que conviene entrenar son las <b className="bad-text">regaladas</b>{allLost ? `: ${gifts} de ${allLost} (${Math.round((gifts / allLost) * 100)} %), frente a ${trades} cambios normales` : ''}.</p>
+          </> : <p className="muted">Todavía no hay datos.</p>}
           <h2 className="section-title list-title">¿Cuándo rendirse?</h2>
           <p>{atRisk ? <>En <strong>{atRisk}</strong> {atRisk === 1 ? 'partida' : 'partidas'} estuviste a −3 o peor. Perdiste {stats.comebacks.lost}, salvaste {stats.comebacks.saved} {stats.comebacks.saved === 1 ? 'tablas' : 'tablas'} y ganaste {stats.comebacks.won}. {stats.comebacks.saved + stats.comebacks.won > 0 ? 'A tu nivel, seguir jugando paga: los rivales también fallan.' : 'Todavía no remontaste ninguna: practica defender posiciones malas en lugar de rendirte pronto.'}</> : 'Aún no hay partidas analizadas en las que estuvieras claramente perdido.'}</p>
         </section>
       </div>
-      {recent.length > 1 && (
+      {real && real.history.length > 1 && (
+        <section className="elo-trend">
+          <h2 className="section-title">Tu Elo {real.speed} en {real.platform}</h2>
+          <EloChart points={real.history.slice(-40).map(p => ({ elo: p.rating, date: p.date }))} />
+          <p className="muted small-note">Tu rating real al empezar cada una de tus últimas {Math.min(40, real.history.length)} partidas {real.speed} importadas de {real.platform}.</p>
+        </section>
+      )}
+      {!real && recent.length > 1 && (
         <section className="elo-trend">
           <h2 className="section-title">Nivel estimado por partida</h2>
           <EloChart points={recent} />
@@ -139,5 +167,68 @@ function EloChart({ points }: { points: { elo: number; date: string }[] }) {
       {points.map((p, i) => <circle key={i} cx={x(i)} cy={y(p.elo)} r="3.5" className="dot"><title>{`${p.date.replace(/\./g, '/')}: ${p.elo}`}</title></circle>)}
       <text x={pad} y={14} className="label">{max - 100}</text><text x={pad} y={height - 6} className="label">{min + 100}</text>
     </svg>
+  );
+}
+
+/** Every position on a named opening line: moves that reach one count as theory. */
+function openingPositions(rows: Opening[]) {
+  const keys = new Set<string>();
+  for (const row of rows) {
+    const board = new Chess();
+    for (const san of row.pgn.split(/\s+/).filter(t => t && !/^\d+\.$/.test(t))) { try { board.move(san); } catch { break; } keys.add(positionKey(board.fen())); }
+  }
+  return keys;
+}
+
+const QUALITY: { id: Quality; label: string; glyph: string; tone: string; hint: string }[] = [
+  { id: 'brilliant', label: 'Brillantes', glyph: '!!', tone: 'q-brilliant', hint: 'La mejor jugada (o casi) y además un sacrificio: dejas una pieza a tiro y la posición aguanta.' },
+  { id: 'best', label: 'Mejores', glyph: '★', tone: 'q-best', hint: 'La jugada que elige Stockfish.' },
+  { id: 'excellent', label: 'Excelentes', glyph: '✓', tone: 'q-good', hint: 'Casi tan buena como la mejor: pierde menos del 2 % de opciones de ganar.' },
+  { id: 'good', label: 'Buenas', glyph: '·', tone: 'q-good', hint: 'Jugadas normales: pierden un poco, sin llegar a imprecisión.' },
+  { id: 'book', label: 'Teoría', glyph: '📖', tone: 'q-book', hint: 'Jugadas que siguen una apertura con nombre.' },
+  { id: 'inaccuracy', label: 'Imprecisiones', glyph: '?!', tone: 'q-dubious', hint: 'Pierden algo de ventaja.' },
+  { id: 'mistake', label: 'Errores', glyph: '?', tone: 'q-mistake', hint: 'Pierden bastante.' },
+  { id: 'blunder', label: 'Errores graves', glyph: '??', tone: 'q-blunder', hint: 'Cambian el resultado de la partida.' },
+];
+
+function QualitySection({ stats, onOpen }: { stats: PlayerStats; onOpen: (id: number) => void }) {
+  const total = Object.values(stats.quality).reduce((a, b) => a + b, 0);
+  if (!total) return <p className="muted">Analiza tus partidas para ver la calidad de tus jugadas (brillantes, mejores, errores…).</p>;
+  const pct = (n: number) => `${((n / total) * 100).toFixed(1).replace('.', ',')} %`;
+  return (
+    <section className="quality">
+      <h2 className="section-title">Calidad de tus jugadas <span className="muted">· {total.toLocaleString('es')} jugadas analizadas</span></h2>
+      <div className="quality-strip" aria-hidden="true">{QUALITY.map(q => stats.quality[q.id] ? <i key={q.id} className={q.tone} style={{ flexGrow: stats.quality[q.id] }} /> : null)}</div>
+      <ul className="quality-list">
+        {QUALITY.map(q => (
+          <li key={q.id} title={q.hint}>
+            <span className={`q-glyph ${q.tone}`}>{q.glyph}</span>
+            <b>{q.label}</b>
+            <Flap value={String(stats.quality[q.id])} tone={q.id === 'blunder' ? 'bad' : q.id === 'brilliant' || q.id === 'best' ? 'good' : q.id === 'mistake' ? 'warn' : undefined} />
+            <span className="muted">{pct(stats.quality[q.id])}</span>
+          </li>
+        ))}
+      </ul>
+      {stats.brilliant.length > 0 && (
+        <p className="quality-brilliant"><b>Tus jugadas brillantes:</b> {stats.brilliant.slice(0, 8).map((b, i) => <button key={i} className="link" onClick={() => b.id && onOpen(b.id)}>{b.label} contra {b.opponent}</button>)}</p>
+      )}
+      <p className="muted small-note">Calculado con la evaluación de Stockfish guardada en cada jugada, con criterios parecidos a los de Chess.com y Lichess. No se marcan jugadas «geniales» (la única buena de la posición): haría falta analizar varias líneas en cada jugada.</p>
+    </section>
+  );
+}
+
+const PIECE_NAMES: Record<string, string> = { q: 'Dama', r: 'Torre', b: 'Alfil', n: 'Caballo', p: 'Peón' };
+function LostTable({ lost, note }: { lost: PlayerStats['allLost']; note: string }) {
+  const rows = Object.entries(lost).filter((e): e is [string, LossKinds] => !!e[1]).sort((a, b) => b[1].gift - a[1].gift || lostTotal(b[1]) - lostTotal(a[1]));
+  if (!rows.length) return <p className="muted">Todavía no hay datos.</p>;
+  const most = rows[0];
+  return (
+    <>
+      <table className="rep-table lost-table">
+        <thead><tr><th>Pieza</th><th className="num">Perdidas</th><th className="num">Cambios</th><th className="num">Regaladas</th><th className="num">Sacrificios</th><th className="num">Sin analizar</th></tr></thead>
+        <tbody>{rows.map(([piece, k]) => <tr key={piece}><td>{PIECE_NAMES[piece] ?? piece}</td><td className="num">{lostTotal(k)}</td><td className="num">{k.trade}</td><td className={`num ${k.gift ? 'bad' : ''}`}>{k.gift}</td><td className={`num ${k.sacrifice ? 'good' : ''}`}>{k.sacrifice}</td><td className="num muted">{k.unknown}</td></tr>)}</tbody>
+      </table>
+      <p className="small-note muted">{note} {most[1].gift ? <>La que más regalas: <b className="bad-text">{PIECE_NAMES[most[0]]}</b> ({most[1].gift} veces).</> : 'No has regalado ninguna pieza en las partidas analizadas.'}</p>
+    </>
   );
 }
