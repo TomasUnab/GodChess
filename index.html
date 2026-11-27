@@ -6,10 +6,18 @@
     <meta name="theme-color" content="#161616" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>GodChess · Entrenamiento local</title>
-    <!-- GitHub Pages can't send COOP/COEP headers; this service worker adds them so
-         Stockfish can run multi-threaded. Locally Vite already sends them and it does nothing. -->
-    <script>window.coi = { shouldRegister: () => false, shouldDeregister: () => true };</script>
-    <script src="./coi-serviceworker.js"></script>
+    <!-- Remove the legacy COI worker: it used to intercept Supabase requests. -->
+    <script>
+      if (navigator.serviceWorker && !sessionStorage.getItem('godchess.sw-cleaned')) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          if (!registrations.length) return;
+          return Promise.all(registrations.map(registration => registration.unregister())).then(() => {
+            sessionStorage.setItem('godchess.sw-cleaned', '1');
+            return caches?.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))));
+          }).then(() => location.reload());
+        }).catch(() => undefined);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
