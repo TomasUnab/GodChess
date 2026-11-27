@@ -25,7 +25,8 @@ const FACTS: [string, string][] = [['3.865', 'aperturas con nombre'], ['3.737.16
 
 /** The departures board: what GodChess does, row by row, and the boarding desk to sign up. */
 export function Landing() {
-  const [shown, setShown] = useState(0);
+const [shown, setShown] = useState(0);
+const [pulse, setPulse] = useState<number | null>(null);
   // The departures board is a dark world whatever the device theme; the app's own toggle applies after sign-in.
   useEffect(() => { const root = document.documentElement; const previous = root.dataset.theme; root.dataset.theme = 'dark'; return () => { if (previous) root.dataset.theme = previous; else delete root.dataset.theme; }; }, []);
   // The signature move: rows turn over one after another, once.
@@ -35,7 +36,18 @@ export function Landing() {
     return () => window.clearInterval(timer);
   }, []);
 
-  return (
+// Refresh one unchanged quote at a time, like a live market board.
+useEffect(() => {
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+let active: number | null = null;
+const timer = window.setInterval(() => {
+  active = Math.floor(Math.random() * ROWS.length);
+  setPulse(active);
+  window.setTimeout(() => setPulse(current => current === active ? null : current), 700);
+}, 4200);
+return () => window.clearInterval(timer);
+}, []);
+return (
     <div className="landing">
       <header className="landing-nav">
         <a className="nameplate" href="#top" aria-label="GodChess"><Flap value="GODCHESS" label="GodChess" /></a>
@@ -55,7 +67,7 @@ export function Landing() {
             <p className="lede">GodChess analiza tus partidas con Stockfish, te explica en español por qué perdiste y convierte tus errores en entrenamiento. El motor corre en tu navegador.</p>
             <ol className="departures" aria-label="Lo que hace GodChess">
               {ROWS.map((row, i) => (
-                <li key={row.name}>
+<li key={row.name} className={pulse === i ? 'is-refreshing' : undefined}>
                   <span className="dep-n">{String(i + 1).padStart(2, '0')}</span>
                   <Flap value={i < shown ? row.name : ' '.repeat(row.name.length)} label={row.name} />
                   <span className="dep-detail">{row.detail}</span>
