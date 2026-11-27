@@ -1,0 +1,10 @@
+import { WebSocketServer } from 'ws';
+import { PeerServer } from 'peer';
+const port = Number(process.env.GODCHESS_ROOM_PORT ?? 8787);
+const peerPort = Number(process.env.GODCHESS_PEER_PORT ?? 9000);
+const rooms = new Map<string, Set<import('ws').WebSocket>>();
+const server = new WebSocketServer({ port });
+server.on('connection', (socket, request) => { const room = new URL(request.url ?? '/', 'http://localhost').searchParams.get('room') ?? 'lobby'; const members = rooms.get(room) ?? new Set(); members.add(socket); rooms.set(room, members); socket.on('message', (message) => members.forEach(peer => { if (peer !== socket && peer.readyState === 1) peer.send(message); })); socket.on('close', () => { members.delete(socket); if (!members.size) rooms.delete(room); }); });
+console.log(`GodChess local room server listening on ws://localhost:${port}`);
+PeerServer({ port: peerPort, path: '/peerjs', allow_discovery: true });
+console.log(`GodChess local PeerServer listening on http://localhost:${peerPort}/peerjs`);

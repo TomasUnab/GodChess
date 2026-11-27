@@ -1,0 +1,1 @@
+Stockfish 17.1 single-thread is vendored here as `stockfish.js` plus six split WASM parts. The worker expects the UCI protocol and never runs engine work on the UI thread. The files originate from the `stockfish@17.1.0` npm package (GPL); preserve the accompanying license when distributing the app.

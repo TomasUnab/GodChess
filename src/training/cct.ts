@@ -1,0 +1,4 @@
+import { Chess } from 'chess.js';
+export type CctAnswers = { checks:string[]; captures:string[]; threats:string[] };
+export function legalChecksAndCaptures(fen:string){const game=new Chess(fen);const checks:string[]=[];const captures:string[]=[];for(const move of game.moves({verbose:true})){const test=new Chess(fen);test.move(move);if(move.captured)captures.push(move.from+move.to);if(test.isCheck())checks.push(move.from+move.to)}return {checks,captures};}
+export function validateCct(fen:string,answers:CctAnswers){const expected=legalChecksAndCaptures(fen);const has=(values:string[],wanted:string[])=>wanted.every(item=>values.includes(item));return {checks:has(answers.checks,expected.checks),captures:has(answers.captures,expected.captures),threats:answers.threats.length>0,valid:has(answers.checks,expected.checks)&&has(answers.captures,expected.captures)&&answers.threats.length>0};}

@@ -1,0 +1,21 @@
+# Dependencias y build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Datasets grandes / fuentes crudas (se regeneran con scripts/)
+lichess_db_puzzle.csv
+lichess_db_puzzle.csv.zst
+# Clon del repo lichess-org/chess-openings (ya vendorizado en public/data/openings/)
+data/chess-openings/
+
+# Entorno y sistema
+.env
+.env.*
+*.log
+.DS_Store
+
+# Impeccable (cache local)
+.impeccable/hook.cache.json
+.impeccable/hook.pending.json
+.impeccable/config.local.json

@@ -1,0 +1,13 @@
+import type { Step } from './steps';
+
+/** Curated local positions: no network lookup is needed to train. */
+export const puzzles: Extract<Step, { kind: 'task' }>[] = [
+  { kind: 'task', fen: 'r1bqk2r/ppppb1pp/2n2n2/8/2B1P3/2N2N2/PPPP1PPP/R1BQ1RK1 w kq - 2 6', prompt: 'Encuentra la captura que gana el centro y desarrolla con tempo.', solutions: ['Bxf7+'], hint1: 'Mira el peón frente al rey antes de mover otra pieza.', hint2: 'El jaque fuerza una respuesta y gana un tiempo.', why: 'El escaneo CCT encuentra una captura con jaque antes de pensar en una jugada tranquila.', rating: 350, theme: 'pieza colgada' },
+  { kind: 'task', fen: 'r3k2r/ppp2ppp/2n1b3/8/2B1P3/2N2N2/PPPP2PP/R1BQ1RK1 w kq - 0 1', prompt: 'Detecta la amenaza de mate y encuentra la defensa activa.', solutions: ['Bxe6'], hint1: 'Busca primero los jaques del rival.', hint2: 'La pieza atacante está clavada a la defensa del rey.', why: 'Defender empieza por nombrar la amenaza, no por jugar el primer movimiento disponible.', rating: 500, theme: 'amenaza no vista' },
+  { kind: 'task', fen: '6k1/5ppp/8/8/8/5Q2/5PPP/6K1 w - - 0 1', prompt: 'Encuentra el mate en una.', solutions: ['Qb8#'], hint1: 'Enumera tus jaques legales.', hint2: 'La dama puede cortar toda la octava.', why: 'Los mates en una construyen visión de casillas de escape.', rating: 600, theme: 'mate fallado' },
+  { kind: 'task', fen: 'r3k2r/ppp2ppp/2n1b3/3q4/3P4/2P1P3/PP3PPP/R1BQ1RK1 w kq - 0 1', prompt: 'Calcula el cambio que deja mejor estructura.', solutions: ['c4'], hint1: 'Compara la recaptura después del cambio.', hint2: 'No cuentes solo material: mira peones aislados.', why: 'El cálculo corto debe incluir la posición que queda después del intercambio.', rating: 850, theme: 'cambio mal calculado' },
+  { kind: 'task', fen: 'r3k2r/ppp2ppp/2n1b3/8/2B1P3/2N2N2/PPPP2PP/R1BQ1RK1 w kq - 0 1', prompt: 'Elige la jugada que mantiene seguro a tu rey.', solutions: ['O-O'], hint1: 'Cuenta las piezas que aún están en el centro.', hint2: 'La seguridad del rey vale más que una ganancia lateral.', why: 'La exposición del rey suele ser una causa real de derrotas antes de cualquier táctica.', rating: 950, theme: 'rey expuesto' },
+  { kind: 'task', fen: '8/8/8/8/8/2k5/8/2K5 w - - 0 1', prompt: 'Acerca el rey sin perder la oposición.', solutions: ['Kc2'], hint1: 'Los reyes no pueden tocarse.', hint2: 'Cuenta las casillas que separan a ambos reyes.', why: 'La oposición convierte el cálculo abstracto en una regla visual concreta.', rating: 1100, theme: 'finales' },
+];
+
+export const puzzleFor = (theme?: string) => puzzles.find(p => p.theme === theme) ?? puzzles[0];
