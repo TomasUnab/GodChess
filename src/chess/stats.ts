@@ -146,17 +146,21 @@ const PIECE_VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0
  */
 function lossKind(tree: GameTree, ids: string[], index: number, side: Side, type: PieceSymbol): keyof LossKinds {
   let regained = 0;
-  for (const reply of [...ids.slice(Math.max(1, index - 3), index), ...ids.slice(index + 1, index + 5)]) {
+  // Follow the exchange for several plies: a recapture may be delayed by a
+  // check or an intermediate move.
+  for (const reply of [...ids.slice(Math.max(1, index - 3), index), ...ids.slice(index + 1, index + 7)]) {
     const r = tree.nodes[reply];
     if ((isWhiteMove(r) ? 'w' : 'b') !== side) continue;
     const victim = new Chess(tree.nodes[r.parent!].fen).get(r.uci.slice(2, 4) as never);
     if (victim && victim.color !== side) regained = Math.max(regained, PIECE_VALUE[victim.type]);
   }
-  if (regained >= PIECE_VALUE[type]) return 'trade';
   const sign = side === 'w' ? 1 : -1;
   const evalAt = (i: number) => { const e = tree.nodes[ids[Math.max(0, Math.min(ids.length - 1, i))]]?.eval; return e ? sign * clamp(scoreToCp(e)) : null; };
-  const was = evalAt(index - 1), now = evalAt(index + 3) ?? evalAt(ids.length - 1);
-  if (was === null || now === null) return 'unknown';
+  const was = evalAt(index - 1), now = evalAt(index + 5) ?? evalAt(index + 3) ?? evalAt(ids.length - 1);
+  if (was === null || now === null) return regained >= PIECE_VALUE[type] ? 'trade' : 'unknown';
+  // A material exchange is only “normal” when the position did not collapse
+  // around it. This prevents a bad recapture from hiding as a trade.
+  if (regained >= PIECE_VALUE[type] && was - now < 150) return 'trade';
   return was - now >= 150 ? 'gift' : 'sacrifice';
 }
 
@@ -176,13 +180,19 @@ export function moveQuality(tree: GameTree, parentId: string, nodeId: string, si
   if (node.classification === 'blunder' || node.classification === 'mistake' || node.classification === 'inaccuracy') return node.classification;
   const top = parent.eval.best === node.uci || drop < 0.02;
   if (top && before < 0.9 && after > -0.1) {
-    // A sacrifice: after the move one of your pieces (knight or more) can be taken for less.
-    const exposed = pieceSafety(node.fen, side).filter(piece => piece.status !== 'safe' && PIECE_VALUE[piece.type] >= 3 && piece.loss >= 2);
-    const already = new Set(pieceSafety(parent.fen, side).filter(piece => piece.status !== 'safe').map(piece => piece.square));
+    // A sacrifice must expose the piece that actually moved to a legal capture.
+    // Merely having another weak piece on the board is not enough (for example,
+    // Qe7+ in a perpetual-check sequence).
+    const afterGame = new Chess(node.fen);
+    const movedSquare = node.uci.slice(2, 4) as never;
+    const movedPiece = afterGame.get(movedSquare);
+    const canBeCaptured = movedPiece && movedPiece.color === side && afterGame
+      .moves({ verbose: true }).some(move => move.to === movedSquare && Boolean(move.captured));
+    const exposed = canBeCaptured ? pieceSafety(node.fen, side).find(piece => piece.square === movedSquare) : undefined;
     // A real sacrifice gives away more than it takes: a recapture or an even trade is not brilliant.
     const takenNow = new Chess(parent.fen).get(node.uci.slice(2, 4) as never);
     const gained = takenNow && takenNow.color !== side ? PIECE_VALUE[takenNow.type] : 0;
-    if (exposed.some(piece => (!already.has(piece.square) || piece.square === node.uci.slice(2, 4)) && PIECE_VALUE[piece.type] - gained >= 2)) return 'brilliant';
+    if (exposed && PIECE_VALUE[exposed.type] - gained >= 2 && exposed.loss >= 2) return 'brilliant';
   }
   if (parent.eval.best === node.uci) return 'best';
   return drop < 0.02 ? 'excellent' : 'good';

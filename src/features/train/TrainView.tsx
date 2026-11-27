@@ -40,7 +40,13 @@ export function TrainView() {
 
 function Path() {
   const { openLesson, setTrain, go, setRepertoireSection } = useStore();
-  const open = (unit: typeof trainingPath[number]) => unit.kind === 'opening' ? setRepertoireSection('explorer') : unit.kind === 'puzzle' || unit.kind === 'drill' ? setTrain('puzzles') : unit.kind === 'game' ? go('play') : openLesson(unit.id);
+  const open = (unit: typeof trainingPath[number]) => {
+    if (unit.id === 'mate1') { setTrain('mates'); return; }
+    if (unit.id === 'cct' || unit.id === 'hanging' || unit.id === 'tactics') { setTrain('puzzles'); return; }
+    if (unit.kind === 'opening') { setRepertoireSection('explorer'); return; }
+    if (unit.kind === 'game') { go('play'); return; }
+    openLesson(unit.id);
+  };
   return (
     <section>
       <PageHead title="Camino de entrenamiento" lede="De 200 ELO en adelante, una fase cada vez. Las aperturas están todas en el explorador; el camino decide cuándo conviene estudiarlas, según tu progreso y tus errores." />
@@ -299,7 +305,7 @@ function Mates() {
   };
   return (
     <section>
-      <PageHead title="Biblioteca de mates" lede="Reconoce el patrón y encuentra el mate. Ocho motivos, seis posiciones etiquetadas en Lichess para cada uno." />
+<PageHead title="Biblioteca de mates" lede="Reconoce el patrón y encuentra el mate. Catorce motivos y hasta doce posiciones etiquetadas en Lichess para cada uno." />
       <div className="seg wrap" role="tablist" aria-label="Motivo de mate">
         {mateThemes.map(item => <button key={item} role="tab" aria-selected={item === theme} className={item === theme ? 'on' : ''} onClick={() => { setTheme(item); setIndex(0); }}>{item}</button>)}
       </div>
@@ -312,7 +318,7 @@ function Mates() {
           <h1 className="side-title">{theme}</h1>
           <p>{current.prompt} Estudia las casillas de escape y las piezas que defienden al rey.</p>
           {message && <p className={`verdict-line ${message.ok ? 'good' : 'bad'}`} role="status">{message.text}</p>}
-          <button className="primary" onClick={() => setIndex(value => (value + 1) % 6)}>Siguiente posición</button>
+<button className="primary" onClick={() => setIndex(value => (value + 1) % Math.max(1, catalog.filter(item => item.theme === theme).length))}>Siguiente posición</button>
         </div>
       </div>
     </section>
