@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "src/styles.css"
+        ],
+        "createdAt": "2026-11-27T14:15:49.684Z",
+        "reason": "User confirmed these two data-visualization bars intentionally animate height and width to represent live evaluation and WDL probabilities."
+      }
+    ]
+  }
+}
