@@ -44,7 +44,7 @@ const timer = window.setInterval(() => {
   active = Math.floor(Math.random() * ROWS.length);
   setPulse(active);
   window.setTimeout(() => setPulse(current => current === active ? null : current), 700);
-}, 4200);
+}, 2800);
 return () => window.clearInterval(timer);
 }, []);
 return (
