@@ -6,7 +6,8 @@ export type EngineRequest =
   | { type: 'init'; base: string }
   | { type: 'setStrength'; skill: number; uciElo: number; movetime: number }
   | { type: 'fullStrength' }
-  | { type: 'analyze'; id: number; fen: string; depth: number }
+| { type: 'setThreads'; threads: number }
+| { type: 'analyze'; id: number; fen: string; depth: number; movetime?: number }
   | { type: 'bestMove'; id: number; fen: string; movetime: number }
   | { type: 'infinite'; id: number; fen: string; multipv: number }
   | { type: 'multi'; id: number; fen: string; depth: number; multipv: number }

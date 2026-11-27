@@ -32,7 +32,8 @@ export function AnalysisView() {
   const [editing, setEditing] = useState(false);
   const [openings, setOpenings] = useState<Opening[] | null>(null);
   const toast = useToast();
-  const { status, lines, depth: engineDepth, nps, engine, threads } = useEngineLines(node.fen, prefs.engineOn && !reporting, prefs.multipv);
+const { status, lines, depth: engineDepth, nps, engine, threads } = useEngineLines(node.fen, prefs.engineOn && !reporting, prefs.multipv);
+useEffect(() => { if (prefs.threads > 0) engine.current?.setThreads(prefs.threads); }, [prefs.threads, engine]);
 
   useEffect(() => { loadOpenings().then(rows => { buildOpeningIndex(rows); setOpenings(rows); }).catch(() => setOpenings([])); }, []);
 
@@ -78,7 +79,7 @@ export function AnalysisView() {
     try {
       for (let index = 0; index < ids.length; index++) {
         const fen = tree.nodes[ids[index]].fen;
-        const result = await client.analyze(fen, depth);
+const result = await client.analyze(fen, depth, prefs.analysisTime > 0 ? prefs.analysisTime * 1000 : undefined);
         results[ids[index]] = { score: result.score, best: result.bestMove || undefined, pv: result.pv, depth: result.depth };
         setReporting({ done: index + 1, total: ids.length });
       }
@@ -207,6 +208,13 @@ export function AnalysisView() {
           <select aria-label="Número de líneas" value={prefs.multipv} onChange={event => setPrefs({ multipv: Number(event.target.value) })}>
             {[1, 2, 3, 4, 5].map(value => <option key={value} value={value}>{value} {value === 1 ? 'línea' : 'líneas'}</option>)}
           </select>
+<select aria-label="Tiempo máximo de revisión" value={prefs.analysisTime} onChange={event => setPrefs({ analysisTime: Number(event.target.value) })}>
+{[3, 5, 10, 20, 30].map(value => <option key={value} value={value}>{value} s por posición</option>)}
+</select>
+<select aria-label="Threads del motor" value={prefs.threads} onChange={event => setPrefs({ threads: Number(event.target.value) })}>
+<option value={0}>Threads automáticos ({threads})</option>
+{[1, 2, 3, 4].map(value => <option key={value} value={value}>{value} {value === 1 ? 'thread' : 'threads'}</option>)}
+</select>
         </div>
         {prefs.engineOn && lines[0]?.wdl && <WdlBar wdl={lines[0].wdl} />}
         <ol className="lines" aria-live="off">

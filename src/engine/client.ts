@@ -38,8 +38,9 @@ export class EngineClient {
 
   setStrength(skill: number, uciElo: number, movetime: number) { this.post({ type: 'setStrength', skill, uciElo, movetime }); }
   fullStrength() { this.post({ type: 'fullStrength' }); }
+setThreads(threads: number) { this.post({ type: 'setThreads', threads }); }
 
-  analyze(fen: string, depth: number) { return this.request(id => ({ type: 'analyze', id, fen, depth }), 30_000); }
+analyze(fen: string, depth: number, movetime?: number) { return this.request(id => ({ type: 'analyze', id, fen, depth, movetime }), Math.max(30_000, (movetime ?? 0) * 4)); }
   /** Several best lines at a fixed depth, in one search (result.lines, ranked). */
   analyzeMulti(fen: string, depth: number, multipv: number) { return this.request(id => ({ type: 'multi', id, fen, depth, multipv }), 30_000); }
   bestMove(fen: string, movetime: number) { return this.request(id => ({ type: 'bestMove', id, fen, movetime }), Math.max(5_000, movetime * 4)); }

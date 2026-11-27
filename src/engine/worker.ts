@@ -65,9 +65,13 @@ self.onmessage = (event: MessageEvent<EngineRequest>) => {
     case 'fullStrength':
       send('setoption name UCI_LimitStrength value false'); send('setoption name Skill Level value 20');
       return;
+case 'setThreads':
+threads = Math.max(1, Math.min(4, Math.round(message.threads)));
+send(`setoption name Threads value ${threads}`);
+return;
     case 'stop': queued = null; if (searching) send('stop'); return;
     case 'quit': queued = null; send('quit'); engine?.terminate(); engine = null; return;
-    case 'analyze': search(message.id, ['setoption name MultiPV value 1', `position fen ${message.fen}`, `go depth ${message.depth}`]); return;
+case 'analyze': search(message.id, ['setoption name MultiPV value 1', `position fen ${message.fen}`, message.movetime ? `go movetime ${message.movetime}` : `go depth ${message.depth}`]); return;
     case 'bestMove': search(message.id, ['setoption name MultiPV value 1', `position fen ${message.fen}`, `go movetime ${message.movetime}`]); return;
     case 'infinite': search(message.id, [`setoption name MultiPV value ${message.multipv}`, `position fen ${message.fen}`, 'go infinite']); return;
     case 'multi': search(message.id, [`setoption name MultiPV value ${message.multipv}`, `position fen ${message.fen}`, `go depth ${message.depth}`]); return;
