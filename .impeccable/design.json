@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-26T23:33:49.701Z",
+  "title": "Design System: GodChess",
+  "extensions": {
+    "colorMeta": {
+      "newsprint": {
+        "role": "neutral",
+        "displayName": "Papel de periódico",
+        "canonical": "#e6e5e0",
+        "tonalRamp": [
+          "#151514",
+          "#1f1f1d",
+          "#3a3935",
+          "#5c5a54",
+          "#b7b4ab",
+          "#dddcd6",
+          "#e6e5e0",
+          "#f4f3ef"
+        ]
+      },
+      "newsprint-shade": {
+        "role": "neutral",
+        "displayName": "Sombra de papel",
+        "canonical": "#dddcd6",
+        "tonalRamp": [
+          "#1f1f1d",
+          "#3a3935",
+          "#5c5a54",
+          "#97948b",
+          "#b7b4ab",
+          "#d3d0c7",
+          "#dddcd6",
+          "#ecebe6"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Hoja",
+        "canonical": "#f4f3ef",
+        "tonalRamp": [
+          "#232321",
+          "#3d3b37",
+          "#5c5a54",
+          "#97948b",
+          "#cfcdc6",
+          "#e6e5e0",
+          "#f4f3ef",
+          "#fbfaf8"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Tinta de columna",
+        "canonical": "#161616",
+        "tonalRamp": [
+          "#000000",
+          "#161616",
+          "#2b2a27",
+          "#3d3b37",
+          "#5c5a54",
+          "#9d9a92",
+          "#c9c7c0",
+          "#e6e5e0"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Tinta segunda",
+        "canonical": "#3d3b37"
+      },
+      "ink-tertiary": {
+        "role": "neutral",
+        "displayName": "Tinta tercera",
+        "canonical": "#5c5a54"
+      },
+      "rule-soft": {
+        "role": "neutral",
+        "displayName": "Filete suave",
+        "canonical": "#b7b4ab"
+      },
+      "spot-red": {
+        "role": "secondary",
+        "displayName": "Rojo de imprenta",
+        "canonical": "#c8102e",
+        "tonalRamp": [
+          "#3d0710",
+          "#6b0c1c",
+          "#9a0f26",
+          "#c8102e",
+          "#e0465c",
+          "#ff6b6b",
+          "#f7a9b2",
+          "#fbdde1"
+        ]
+      },
+      "warn-amber": {
+        "role": "secondary",
+        "displayName": "Ámbar de corrección",
+        "canonical": "#8a5a00",
+        "tonalRamp": [
+          "#2e1e00",
+          "#4f3400",
+          "#6e4800",
+          "#8a5a00",
+          "#b27a1c",
+          "#e3a84a",
+          "#f0cd92",
+          "#f8e8cc"
+        ]
+      },
+      "good-teal": {
+        "role": "tertiary",
+        "displayName": "Verde azulado de acierto",
+        "canonical": "#1f6f5c",
+        "tonalRamp": [
+          "#0a2620",
+          "#123f34",
+          "#195748",
+          "#1f6f5c",
+          "#3a9a82",
+          "#5cc4a8",
+          "#a3dccb",
+          "#d8f0e9"
+        ]
+      },
+      "mast": {
+        "role": "neutral",
+        "displayName": "Mancheta",
+        "canonical": "#161616"
+      },
+      "mast-ink": {
+        "role": "neutral",
+        "displayName": "Texto de mancheta",
+        "canonical": "#e6e5e0"
+      },
+      "mast-muted": {
+        "role": "neutral",
+        "displayName": "Gris de mancheta",
+        "canonical": "#a9a79f"
+      },
+      "diagram-hatch": {
+        "role": "neutral",
+        "displayName": "Trama del diagrama",
+        "canonical": "#97948b"
+      },
+      "diagram-hatch-ground": {
+        "role": "neutral",
+        "displayName": "Fondo de la trama",
+        "canonical": "#d3d0c7"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Titular condensado",
+        "purpose": "Títulos de página, nombres de jugadores y titular de portada; Archivo 900 a anchura 62%, mayúsculas."
+      },
+      "nameplate": {
+        "displayName": "Mancheta",
+        "purpose": "Solo la cabecera GODCHESS en la banda de tinta."
+      },
+      "headline": {
+        "displayName": "Cifra",
+        "purpose": "Cifras grandes: precisión, estadísticas, agenda; 800 a anchura 75%."
+      },
+      "title": {
+        "displayName": "Título de sección",
+        "purpose": "Secciones, pie de diagrama, veredictos y estados vacíos."
+      },
+      "body": {
+        "displayName": "Texto",
+        "purpose": "Interfaz y lectura a anchura normal, cifras tabulares."
+      },
+      "movetext": {
+        "displayName": "Notación",
+        "purpose": "La partida como texto de columna; línea principal 760, variantes 450."
+      },
+      "label": {
+        "displayName": "Etiqueta",
+        "purpose": "Cabeceras de tabla y etiquetas de datos cortas, mayúsculas con tracking .07em."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "FEN, PGN y códigos de invitación."
+      }
+    },
+    "shadows": [
+      {
+        "name": "xray-hanging",
+        "value": "inset 0 0 0 4px rgba(200, 16, 46, .92)",
+        "purpose": "Anillo de casilla: pieza propia colgada (no es elevación)."
+      },
+      {
+        "name": "xray-weak",
+        "value": "inset 0 0 0 3px rgba(200, 16, 46, .5)",
+        "purpose": "Anillo de casilla: pieza propia débil."
+      },
+      {
+        "name": "xray-target",
+        "value": "inset 0 0 0 4px rgba(31, 111, 92, .9)",
+        "purpose": "Anillo de casilla: pieza rival ganable."
+      },
+      {
+        "name": "graph-mark-halo",
+        "value": "0 0 0 2px var(--paper)",
+        "purpose": "Halo de papel que separa los puntos de error del gráfico de evaluación."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-color",
+        "value": ".15s ease-out",
+        "purpose": "Cambios de color, fondo y borde en botones y pestañas."
+      },
+      {
+        "name": "eval-bar-height",
+        "value": "height .35s cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Relleno de la barra de evaluación."
+      },
+      {
+        "name": "toast",
+        "value": "opacity .2s ease-out, transform .2s cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Entrada del toast desde 12px abajo."
+      },
+      {
+        "name": "skeleton-shimmer",
+        "value": "shimmer 1.4s linear infinite",
+        "purpose": "Carga de líneas del motor y filas."
+      },
+      {
+        "name": "board",
+        "value": "animación propia de Chessground",
+        "purpose": "Movimiento de piezas en el diagrama."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce → transition-duration 0s, animation none",
+        "purpose": "Desactiva todo el movimiento."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1360px"
+      },
+      {
+        "name": "laptop",
+        "value": "1240px"
+      },
+      {
+        "name": "narrow",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal en tinta rellena.",
+      "html": "<button class=\"ds-btn-primary\">Analizar partida completa</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid var(--ink,#161616);border-radius:0;background:var(--ink,#161616);color:var(--paper,#e6e5e0);font:650 14.5px/1.2 'Archivo Variable',Archivo,system-ui,sans-serif;transition:background-color .15s ease-out}.ds-btn-primary:hover{background:var(--ink-hover,#000)}.ds-btn-primary:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acción secundaria en contorno de tinta.",
+      "html": "<button class=\"ds-btn-secondary\">Guardar línea</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border:1px solid var(--ink,#161616);border-radius:0;background:transparent;color:var(--ink,#161616);font:650 14.5px/1.2 'Archivo Variable',Archivo,system-ui,sans-serif;transition:background-color .15s ease-out}.ds-btn-secondary:hover{background:var(--paper-2,#dddcd6)}.ds-btn-secondary:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Herramienta del tablero; el filete aparece al pasar.",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M12 12v6M9 15l3-3 3 3\"/></svg> Importar</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 16px;border:1px solid transparent;border-radius:0;background:transparent;color:var(--ink,#161616);font:650 14.5px/1.2 'Archivo Variable',Archivo,system-ui,sans-serif;transition:border-color .15s ease-out}.ds-btn-ghost:hover{border-color:var(--rule-soft,#b7b4ab)}.ds-btn-ghost:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Signo de valoración conmutable.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\">!</button><button class=\"ds-chip ds-on\">?</button><button class=\"ds-chip\">?!</button></div>",
+      "css": ".ds-chips{display:flex;gap:6px}.ds-chip{min-width:34px;height:32px;padding:0 9px;border:1px solid var(--rule-soft,#b7b4ab);border-radius:0;background:transparent;color:var(--ink,#161616);font:700 13.5px 'Archivo Variable',Archivo,system-ui,sans-serif}.ds-chip:hover{border-color:var(--ink,#161616)}.ds-chip.ds-on{background:var(--ink,#161616);color:var(--paper,#e6e5e0);border-color:var(--ink,#161616)}.ds-chip:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo sobre hoja con borde de tinta tercera.",
+      "html": "<label class=\"ds-field\">Jugador<input class=\"ds-input\" placeholder=\"Nombre\"></label>",
+      "css": ".ds-field{display:grid;gap:6px;font:650 13px 'Archivo Variable',Archivo,system-ui,sans-serif;color:var(--ink-2,#3d3b37)}.ds-input{min-height:40px;padding:8px 10px;border:1px solid var(--ink-3,#5c5a54);border-radius:0;background:var(--sheet,#f4f3ef);color:var(--ink,#161616);font:400 15px 'Archivo Variable',Archivo,system-ui,sans-serif;caret-color:var(--danger,#c8102e)}.ds-input:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:0;border-color:var(--ink,#161616)}"
+    },
+    {
+      "name": "Masthead",
+      "kind": "nav",
+      "refersTo": "masthead",
+      "description": "Banda de tinta con mancheta condensada y pestañas recortadas en papel.",
+      "html": "<nav class=\"ds-mast\"><span class=\"ds-name\">GodChess</span><button>Inicio</button><button class=\"ds-on\">Análisis</button><button>Partidas</button></nav>",
+      "css": ".ds-mast{display:flex;align-items:stretch;gap:2px;height:64px;padding:0 24px;background:var(--mast,#161616);color:var(--mast-ink,#e6e5e0);font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-name{align-self:center;margin-right:22px;font-stretch:62%;font-weight:900;font-size:34px;line-height:1;text-transform:uppercase;letter-spacing:.01em}.ds-mast button{border:0;background:none;padding:0 14px;color:var(--mast-muted,#a9a79f);font:600 14.5px inherit;font-family:inherit;transition:color .15s ease-out}.ds-mast button:hover{color:var(--mast-ink,#e6e5e0)}.ds-mast button.ds-on{background:var(--paper,#e6e5e0);color:var(--ink,#161616)}.ds-mast button:focus-visible{outline:2px solid var(--mast-ink,#e6e5e0);outline-offset:-4px}"
+    },
+    {
+      "name": "Subnav",
+      "kind": "nav",
+      "refersTo": "subnav",
+      "description": "Pestañas de sección sobre filete con subrayado de 3px.",
+      "html": "<nav class=\"ds-subnav\"><button class=\"ds-on\">Repasar <span class=\"ds-count\">12</span></button><button>Árbol</button><button>Explorador</button></nav>",
+      "css": ".ds-subnav{display:flex;border-bottom:1px solid var(--rule,#161616);font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-subnav button{display:inline-flex;align-items:center;gap:8px;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:none;padding:10px 14px 9px;color:var(--ink-3,#5c5a54);font:650 15px inherit;font-family:inherit}.ds-subnav button:hover{color:var(--ink,#161616)}.ds-subnav button.ds-on{color:var(--ink,#161616);border-bottom-color:var(--ink,#161616)}.ds-count{min-width:20px;padding:0 6px;background:var(--ink,#161616);color:var(--paper,#e6e5e0);font-size:12px;font-weight:700}"
+    },
+    {
+      "name": "Column Notation",
+      "kind": "custom",
+      "refersTo": "move-current",
+      "description": "La partida compuesta como texto de columna con severidad por signo.",
+      "html": "<p class=\"ds-movetext\"><span class=\"ds-mv ds-main\">1.e4</span> <span class=\"ds-mv ds-main\">e5</span> <span class=\"ds-mv ds-main\">2.Cf3</span> <span class=\"ds-mv ds-main ds-bad ds-cur\">f6??</span> <span class=\"ds-mv ds-main ds-mistake\">3.Ac4?</span> <span class=\"ds-var\">(3.Cxe5! <span class=\"ds-cm\">gana en el acto</span>)</span></p>",
+      "css": ".ds-movetext{max-width:42ch;font:450 16.5px/1.8 'Archivo Variable',Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink-2,#3d3b37)}.ds-mv{padding:1px 3px;cursor:pointer}.ds-mv:hover{background:var(--paper-2,#dddcd6)}.ds-main{font-weight:760;color:var(--ink,#161616)}.ds-bad{color:var(--danger,#c8102e)}.ds-mistake{color:var(--warn,#8a5a00)}.ds-cur{background:var(--ink,#161616);color:var(--paper,#e6e5e0)}.ds-bad.ds-cur{background:var(--danger,#c8102e)}.ds-var{display:block;margin:2px 0 6px 18px;font-size:15px;line-height:1.7}.ds-cm{font-style:italic}"
+    },
+    {
+      "name": "Printed Diagram",
+      "kind": "custom",
+      "refersTo": "eval-bar",
+      "description": "Tablero con marco de 2px, casillas oscuras rayadas y pie de diagrama.",
+      "html": "<figure class=\"ds-diagram\"><div class=\"ds-board\"></div><figcaption class=\"ds-caption\"><strong>Juegan las blancas</strong><span>Partida nº 0042</span></figcaption></figure>",
+      "css": ".ds-diagram{margin:0;width:192px;font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-board{aspect-ratio:1;border:2px solid var(--rule,#161616);background-color:#f4f3ef;background-image:repeating-linear-gradient(45deg,#97948b 0 1.5px,#d3d0c7 1.5px 4.4px);-webkit-mask:none;background-size:auto;position:relative}.ds-board::after{content:'';position:absolute;inset:0;background:conic-gradient(#f4f3ef 25%,transparent 0 50%,#f4f3ef 0 75%,transparent 0) 0 0/25% 25%}.ds-caption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:10px;padding-top:7px;border-top:2px solid var(--rule,#161616)}.ds-caption strong{font-stretch:75%;font-weight:800;font-size:16px;text-transform:uppercase}.ds-caption span{font-size:12px;color:var(--ink-3,#5c5a54)}"
+    },
+    {
+      "name": "Action List",
+      "kind": "custom",
+      "refersTo": "action-list",
+      "description": "Lista de acciones con filetes entre filas.",
+      "html": "<ul class=\"ds-actions\"><li><button>Guardar en el repertorio</button></li><li><button>Entrenar esta línea</button></li></ul>",
+      "css": ".ds-actions{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule,#161616);font-family:'Archivo Variable',Archivo,system-ui,sans-serif}.ds-actions li{border-bottom:1px solid var(--rule-soft,#b7b4ab)}.ds-actions button{display:flex;width:100%;padding:10px 2px;border:0;background:none;text-align:left;font:600 14px inherit;font-family:inherit;color:var(--ink,#161616)}.ds-actions button:hover{background:var(--paper-2,#dddcd6)}.ds-actions button:focus-visible{outline:2px solid var(--focus,#161616);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Columna de ajedrez",
+    "overview": "Cada análisis se compone como la columna de ajedrez de un periódico: diagrama impreso, pie de diagrama y partida comentada en ritmo de columna. La página es papel de periódico gris frío, la tinta es casi negra y la estructura la ponen filetes visibles (rules), no paneles. Un solo color de imprenta, el rojo, se reserva para el error; el verde azulado marca lo correcto. Todo lo demás es tinta sobre papel.\n\nLa densidad es la de una sección de periódico: columnas separadas por filetes de 1px, cabeceras condensadas en mayúsculas, cifras tabulares, listas y tablas con filetes suaves entre filas. Los campos planos de tinta (la mancheta, el botón primario, la jugada actual, el toast) son los únicos bloques de color sólido; marcan dónde está el lector.\n\nEl sistema rechaza el default de la categoría: paneles carbón con acento neón y tarjetas flotantes. No hay sombras, no hay radios, no hay tarjetas. La edición nocturna es el mismo sistema invertido sobre tinta, no un tema distinto.",
+    "keyCharacteristics": [
+      "Papel de periódico frío, tinta casi negra, un rojo de imprenta para errores.",
+      "Filetes visibles (2px tinta para cabeceras, 1px tinta para columnas, 1px suave para filas).",
+      "Archivo con eje de anchura: condensado 62–75% para titulares y cifras, anchura normal para la interfaz.",
+      "Tablero como diagrama impreso: casillas oscuras rayadas, marco de 2px.",
+      "Notación de la partida compuesta como texto de columna, variantes en línea.",
+      "Esquinas rectas, superficies planas, cero sombras de elevación."
+    ],
+    "rules": [
+      {
+        "name": "The One Spot Colour Rule",
+        "body": "El rojo existe solo para el error grave. No se usa en botones, enlaces, decoración ni marca. Si algo es rojo, el jugador se equivocó o algo está en peligro.",
+        "section": "colors"
+      },
+      {
+        "name": "The Glyph Decides Rule",
+        "body": "El color de una jugada sigue a su signo: `??` rojo, `?` ámbar, `?!` solo su signo en tinta, `!` y `!!` verde. Nunca se colorea una dudosa como error.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Is Action Rule",
+        "body": "No hay color de acento para acciones. La acción primaria es tinta rellena; la secundaria, tinta en contorno.",
+        "section": "colors"
+      },
+      {
+        "name": "The Condensed Means Headline Rule",
+        "body": "La anchura 62% en 900 es solo para titulares y la mancheta; 75% en 800 para cifras y títulos de sección. Los controles y el texto de lectura van siempre a anchura normal.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Toda cifra (evaluación, precisión, reloj, número de partida, recuento) usa cifras tabulares, para que las columnas de números alineen como en una tabla impresa.",
+        "section": "typography"
+      },
+      {
+        "name": "The Rules Not Shadows Rule",
+        "body": "Si algo necesita separarse, recibe un filete. Nunca una sombra, nunca un fondo de tarjeta.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do separar zonas con filetes: 2px tinta bajo cabeceras de página y sobre informes, 1px tinta entre columnas, 1px filete suave entre filas.",
+      "Do componer titulares en Archivo 900 a anchura 62% en mayúsculas, y cifras en 800 a anchura 75%.",
+      "Do colorear las jugadas según su signo: `??` rojo, `?` ámbar, `?!` sin color, `!`/`!!` verde.",
+      "Do usar tinta rellena para el estado activo (pestaña, chip, segmento, jugada actual).",
+      "Do mantener el diagrama con casillas oscuras rayadas y marco de 2px en ambas ediciones.",
+      "Do desactivar transiciones y animaciones con `prefers-reduced-motion: reduce`."
+    ],
+    "donts": [
+      "Don't usar sombras de elevación, esquinas redondeadas ni tarjetas con fondo propio.",
+      "Don't usar el rojo para nada que no sea error grave o peligro.",
+      "Don't introducir un color de acento para botones o enlaces; la acción es tinta.",
+      "Don't usar la anchura condensada en controles ni en texto de lectura.",
+      "Don't volver a los paneles carbón con acento neón."
+    ]
+  }
+}

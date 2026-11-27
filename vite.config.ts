@@ -10,9 +10,8 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
           if (id.includes('/react/') || id.includes('/react-dom/')) return 'react';
-          if (id.includes('/chess.js/') || id.includes('/react-chessboard/')) return 'chess';
+          if (id.includes('/chess.js/') || id.includes('/chessground/')) return 'chess';
           if (id.includes('/peerjs/') || id.includes('/ws/')) return 'collaboration';
-          if (id.includes('/framer-motion/')) return 'motion';
           if (id.includes('/zustand/')) return 'state';
           return 'vendor';
         },

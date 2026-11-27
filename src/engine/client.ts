@@ -1,56 +1,81 @@
-import type { EngineRequest, EngineResult } from './protocol';
+import type { EngineInfo, EngineMessage, EngineRequest, EngineResult } from './protocol';
 
-type Pending = { resolve: (value: EngineResult) => void; reject: (reason: Error) => void; timer: number };
+type Pending = { id: number; resolve: (value: EngineResult) => void; reject: (reason: Error) => void; timer: number };
+export type EngineLines = { depth: number; lines: EngineInfo[]; nps: number };
 
 /**
- * Thin typed facade over the UCI worker. Only one request may own the engine
- * at a time; replacing a position first sends stop so no `go` remains orphaned.
+ * Typed facade over the UCI worker. Every search carries an id, so a result
+ * that arrives after its search was replaced is ignored instead of resolving
+ * the wrong request.
  */
 export class EngineClient {
   private worker?: Worker;
   private pending?: Pending;
-  private ready = false;
+  private ready?: Promise<void>;
+  private sequence = 0;
+  private streamId = 0;
+  private streamLines = new Map<number, EngineInfo>();
+  private onLines?: (lines: EngineLines) => void;
 
   init(): Promise<void> {
-    this.worker ??= new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
-    this.worker.onmessage = (event: MessageEvent<{ type: string; result?: EngineResult; error?: string }>) => {
-      if (event.data.type === 'result' && event.data.result) this.clearPending(undefined, event.data.result);
-      if (event.data.type === 'error') this.clearPending(new Error(event.data.error));
-    };
-    return new Promise((resolve, reject) => {
-      const onMessage = (event: MessageEvent<{ type: string; error?: string }>) => {
-        if (event.data.type === 'readyok') { this.ready = true; this.worker?.removeEventListener('message', onMessage); resolve(); }
-        if (event.data.type === 'error') reject(new Error(event.data.error));
+    if (this.ready) return this.ready;
+    this.worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
+    this.ready = new Promise((resolve, reject) => {
+      this.worker!.onmessage = (event: MessageEvent<EngineMessage>) => {
+        const data = event.data;
+        if (data.type === 'readyok') resolve();
+        if (data.type === 'error') { reject(new Error(data.error)); this.settle(this.pending?.id ?? -1, new Error(data.error)); }
+        if (data.type === 'result') this.settle(data.id, undefined, data.result);
+        if (data.type === 'info' && data.id === this.streamId && this.onLines) this.collect(data.info);
       };
-      this.worker?.addEventListener('message', onMessage);
-      this.worker?.postMessage({ type: 'init' } satisfies EngineRequest);
+      this.post({ type: 'init' });
     });
+    return this.ready;
   }
 
-  setStrength(skill: number, uciElo: number, movetime: number) {
-    this.worker?.postMessage({ type: 'setStrength', skill, uciElo, movetime } satisfies EngineRequest);
+  setStrength(skill: number, uciElo: number, movetime: number) { this.post({ type: 'setStrength', skill, uciElo, movetime }); }
+  fullStrength() { this.post({ type: 'fullStrength' }); }
+
+  analyze(fen: string, depth: number) { return this.request(id => ({ type: 'analyze', id, fen, depth }), 30_000); }
+  bestMove(fen: string, movetime: number) { return this.request(id => ({ type: 'bestMove', id, fen, movetime }), Math.max(5_000, movetime * 4)); }
+
+  /** Infinite MultiPV analysis; `onLines` receives the lines sorted by rank as they deepen. */
+  startInfinite(fen: string, multipv: number, onLines: (lines: EngineLines) => void) {
+    this.settle(this.pending?.id ?? -1, new Error('Engine replaced'));
+    this.streamId = ++this.sequence;
+    this.streamLines.clear();
+    this.onLines = onLines;
+    this.post({ type: 'infinite', id: this.streamId, fen, multipv });
   }
 
-  analyze(fen: string, depth: number) { return this.request({ type: 'analyze', fen, depth }, 20_000); }
-  bestMove(fen: string, movetime: number) { return this.request({ type: 'bestMove', fen, movetime }, Math.max(5_000, movetime * 4)); }
+  stop() { this.onLines = undefined; this.streamId = -1; this.post({ type: 'stop' }); this.settle(this.pending?.id ?? -1, new Error('Engine stopped')); }
+  quit() { this.stop(); this.post({ type: 'quit' }); this.worker?.terminate(); this.worker = undefined; this.ready = undefined; }
 
-  stop() { this.worker?.postMessage({ type: 'stop' } satisfies EngineRequest); this.clearPending(new Error('Engine stopped')); }
-  quit() { this.stop(); this.worker?.postMessage({ type: 'quit' } satisfies EngineRequest); this.worker?.terminate(); this.worker = undefined; this.ready = false; }
+  private collect(info: EngineInfo) {
+    const rank = info.multipv ?? 1;
+    this.streamLines.set(rank, info);
+    const lines = [...this.streamLines.values()].filter(line => line.depth >= info.depth - 1).sort((a, b) => (a.multipv ?? 1) - (b.multipv ?? 1));
+    this.onLines?.({ depth: Math.max(...lines.map(line => line.depth)), lines, nps: info.nps ?? 0 });
+  }
 
-  private request(message: EngineRequest, timeout: number): Promise<EngineResult> {
+  private post(message: EngineRequest) { this.worker?.postMessage(message); }
+
+  private request(build: (id: number) => EngineRequest, timeout: number): Promise<EngineResult> {
     if (!this.worker || !this.ready) return Promise.reject(new Error('Engine is not ready'));
-    this.stop();
+    this.onLines = undefined; this.streamId = -1;
+    this.settle(this.pending?.id ?? -1, new Error('Engine replaced'));
+    const id = ++this.sequence;
     return new Promise((resolve, reject) => {
-      const timer = window.setTimeout(() => this.clearPending(new Error('Engine timeout')), timeout);
-      this.pending = { resolve, reject, timer };
-      this.worker?.postMessage(message);
+      const timer = window.setTimeout(() => this.settle(id, new Error('Engine timeout')), timeout);
+      this.pending = { id, resolve, reject, timer };
+      this.post(build(id));
     });
   }
 
-  private clearPending(error?: Error, result?: EngineResult) {
-    if (!this.pending) return;
+  private settle(id: number, error?: Error, result?: EngineResult) {
+    if (!this.pending || this.pending.id !== id) return;
     window.clearTimeout(this.pending.timer);
     const pending = this.pending; this.pending = undefined;
-    error ? pending.reject(error) : pending.resolve(result!);
+    if (error) pending.reject(error); else pending.resolve(result!);
   }
 }

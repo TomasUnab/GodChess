@@ -19,3 +19,7 @@ data/chess-openings/
 .impeccable/hook.cache.json
 .impeccable/hook.pending.json
 .impeccable/config.local.json
+
+# Impeccable: capturas y bocetos de trabajo
+.impeccable/review/
+.impeccable/mocks/

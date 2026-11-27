@@ -13,3 +13,6 @@ export function calibrateRating(correct: number, total = 6) { return Math.max(20
 export function openingsUnlocked(state: TrainingState) { return state.slowGames >= 20 && state.mateInOne >= 90; }
 export function penalizeCct(state: TrainingState) { return { ...state, xp: Math.max(0, state.xp - 20), errors: { ...state.errors, 'amenaza no vista': state.errors['amenaza no vista'] + 2 } }; }
 export function useHint(state: TrainingState, level:1|2) { return { ...state, xp: Math.max(0, state.xp - (level===1?5:10)) }; }
+
+/** Counts the causes found by the automatic post-mortem of one analysed game. */
+export function applyAutopsy(state: TrainingState, causes: ErrorTag[]): TrainingState { const errors = { ...state.errors }; causes.forEach(tag => { errors[tag] += 1; }); return { ...state, games: state.games + 1, errors }; }

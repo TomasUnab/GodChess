@@ -13,21 +13,28 @@ npm test
 
 La instalación no incluye CDN ni fuentes remotas en runtime. El motor previsto vive en `/public/engine/` y será ejecutado siempre desde un Web Worker.
 
-## Roadmap por etapas
+## Qué incluye
 
-1. Núcleo de producto: dashboard, CCT, tablero local y persistencia de estado. **Entregado.**
-2. Motor: Stockfish 17 single-thread, cliente tipado, cola/timeout/stop/quit y fuerza adaptada al rating. **Base entregada; falta incorporar el binario WASM.**
-3. Entrenamiento: IndexedDB, diagnóstico de seis ejercicios, drills de visión, mates por motivo y perfil de errores. **Diagnóstico, perfil, foco, CCT validado e IndexedDB entregados; faltan los catálogos completos.**
-4. Juego social: salas Node + ws y P2P PeerJS para invitar partidas o lecciones sin cuentas. **Servidor de salas base entregado; falta la UI de invitación P2P.**
-5. Hardening: Vitest, sincronización resiliente, accesibilidad y auditoría final. **Build, tests y detector Impeccable pasan.**
+GodChess combina el entrenador para principiantes con un tablero de análisis inspirado en las funciones de En Croissant (implementación propia; En Croissant es solo referencia funcional).
+
+- **Análisis**: árbol de jugadas con variantes, comentarios y valoraciones (NAG), navegación con teclado (←/→, Inicio/Fin, F para girar, espacio juega la mejor línea), importación y exportación PGN/FEN, nombre de apertura (base Lichess CC0), Stockfish 17.1 con 1–5 líneas (MultiPV) y barra de evaluación. Enlaces compartibles: `#pgn=<PGN codificado>` o `#fen=<FEN>`.
+- **Informe de partida**: análisis completo con Stockfish (profundidad 10/14/18), precisión por jugador con las fórmulas de Lichess, imprecisiones, errores y errores graves marcados en la notación, la mejor línea del motor añadida como variante y gráfica de evaluación navegable.
+- **Partidas**: base local en IndexedDB; importa archivos PGN con muchas partidas (arrastrar y soltar), búsqueda, filtros y orden por columnas. Las partidas contra el motor y por invitación se guardan solas.
+- **Repertorio**: guarda líneas desde el análisis (con blancas o negras) y practícalas con repetición espaciada; explorador de 3.865 aperturas.
+- **Entrenar**: camino por fases, lecciones de piezas, diagnóstico de seis posiciones, puzzles con escaneo CCT obligatorio, drill de visión, biblioteca de mates y diario de errores con los intentos reales.
+- **Jugar**: partida lenta contra Stockfish con fuerza adaptada y partidas P2P por invitación (`npm run server` arranca el PeerServer local).
+
+## Diseño
+
+Dirección visual «Columna de ajedrez»: el análisis se compone como la columna de ajedrez de un diario (diagrama con casillas rayadas, pie «Juegan las blancas», partida en notación de columna). Papel prensa gris, tinta negra, un rojo directo reservado para los errores y una edición nocturna. Tipografía Archivo autoalojada (sin peticiones de red). Detalles en `DESIGN.md`.
 
 ## Impeccable
 
-Se instaló con `npx skills add pbakaus/impeccable`. Se aplicó el flujo `init → layout → typeset → colorize → animate → critique → polish`. La auditoría del detector terminó con `impeccable detect --json` → `[]`. Verificación ejecutada: `npm install`, `npm run build` y `npm test` pasan; 1 archivo de tests y 2 tests correctos.
+Se instaló con `npx skills add pbakaus/impeccable`. Se aplicó el flujo `init → layout → typeset → colorize → animate → critique → polish`. La auditoría del detector terminó con `impeccable detect --json` → `[]`. Verificación: `npm run build` y `npm test` pasan (32 tests).
 
 ## Motor y multi-thread
 
-Stockfish WASM single-thread se colocará en `public/engine/stockfish.js` y su WASM asociado. El modo multi-thread se activará opcionalmente sirviendo `coi-serviceworker.js` con aislamiento cross-origin; el modo por defecto sigue siendo single-thread para funcionar sin configuración adicional.
+Stockfish 17.1 WASM single-thread está en `public/engine/` y se ejecuta siempre en un Web Worker. El modo multi-thread se activará opcionalmente sirviendo `coi-serviceworker.js` con aislamiento cross-origin; el modo por defecto sigue siendo single-thread para funcionar sin configuración adicional.
 
 ## Privacidad
 
