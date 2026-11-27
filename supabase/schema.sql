@@ -98,7 +98,38 @@ create policy "retar a un amigo" on public.challenges for insert to authenticate
     select 1 from public.friendships f where f.status = 'accepted'
       and ((f.requester = challenger and f.addressee = opponent) or (f.requester = opponent and f.addressee = challenger))));
 drop policy if exists "responder retos" on public.challenges;
-create policy "responder retos" on public.challenges for update to authenticated using (auth.uid() in (challenger, opponent)) with check (auth.uid() in (challenger, opponent));
+drop policy if exists "aceptar o rechazar retos" on public.challenges;
+drop policy if exists "cancelar retos propios" on public.challenges;
+
+-- Participants may not rewrite the players, clock, peer code or result.
+-- The invited opponent can accept/decline; the challenger can cancel.
+create policy "aceptar o rechazar retos" on public.challenges
+for update to authenticated
+using (auth.uid() = opponent and status = 'pending')
+with check (auth.uid() = opponent and status in ('accepted', 'declined'));
+
+create policy "cancelar retos propios" on public.challenges
+for update to authenticated
+using (auth.uid() = challenger and status = 'pending')
+with check (auth.uid() = challenger and status = 'cancelled');
+
+create or replace function public.keep_challenge_fields_immutable()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.challenger <> old.challenger
+    or new.opponent <> old.opponent
+    or new.time_control <> old.time_control
+    or new.peer_code is distinct from old.peer_code
+    or new.result is distinct from old.result then
+    raise exception 'Challenge identity and result fields are immutable';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists challenge_fields_immutable on public.challenges;
+create trigger challenge_fields_immutable
+before update on public.challenges
+for each row execute function public.keep_challenge_fields_immutable();
 
 -- Tiempo real para que los retos lleguen al instante.
 do $$ begin
