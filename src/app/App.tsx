@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Bot, Moon, Sun } from 'lucide-react';
+import { Bot, LogOut, Moon, Sun } from 'lucide-react';
+import { useSession } from '../account/session';
 import { useStore, type Area, type BoardTheme } from './store';
 import { HomeView } from '../features/home/HomeView';
 import { AnalysisView } from '../features/analysis/AnalysisView';
@@ -22,6 +23,7 @@ const dateline = () => new Date().toLocaleDateString('es', { weekday: 'long', da
 export function App() {
   const { area, go, prefs, setPrefs, repertoire } = useStore();
   const [coach, setCoach] = useState(false);
+  const { session, profile, signOut } = useSession();
   const due = dueEntries(repertoire).length;
   useEffect(() => { document.documentElement.dataset.theme = prefs.theme === 'night' ? 'dark' : 'light'; }, [prefs.theme]);
   useEffect(() => { document.documentElement.dataset.board = prefs.board; }, [prefs.board]);
@@ -55,6 +57,7 @@ export function App() {
             <option value="steel">Acero</option><option value="diagram">Diagrama</option><option value="wood">Madera</option><option value="green">Verde</option>
           </select>
         </label>
+        {session && <button className="edition account" onClick={() => void signOut()} title={`Sesión: ${session.user.email ?? ''}`}><span>{profile?.username ?? 'Cuenta'}</span><LogOut size={16} aria-label="Salir" /></button>}
         <button className="edition" onClick={() => setPrefs({ theme: prefs.theme === 'night' ? 'day' : 'night' })} aria-pressed={prefs.theme === 'night'} title={prefs.theme === 'night' ? 'Edición de día' : 'Edición nocturna'}>
           {prefs.theme === 'night' ? <Sun size={16} /> : <Moon size={16} />}<span>{prefs.theme === 'night' ? 'Edición de día' : 'Edición nocturna'}</span>
         </button>

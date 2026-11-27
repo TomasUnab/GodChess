@@ -38,7 +38,11 @@ Se instaló con `npx skills add pbakaus/impeccable`. Se aplicó el flujo `init �
 2. En el repositorio: **Settings → Pages → Source: GitHub Actions**.
 3. Cada `push` a `main` ejecuta `.github/workflows/pages.yml`: instala, pasa los tests, construye y publica en `https://<usuario>.github.io/<repositorio>/`.
 
-Todo funciona como archivos estáticos: rutas relativas (`base: './'`), Stockfish en WebAssembly y datos en `public/data/`. Pages no permite cabeceras COOP/COEP, así que `public/coi-serviceworker.js` las añade desde el navegador y Stockfish corre multihilo (la primera visita recarga la página una vez). «Invitar a alguien» no funciona en Pages: necesita el PeerServer local (`npm run server`).
+Todo funciona como archivos estáticos: rutas relativas (`base: './'`), Stockfish en WebAssembly y datos en `public/data/`. Pages no permite cabeceras COOP/COEP, así que `public/coi-serviceworker.js` las añade desde el navegador y Stockfish corre multihilo (la primera visita recarga la página una vez). Las invitaciones funcionan en Pages: usan el servidor público de señalización de PeerJS (en local, el PeerServer propio de `npm run server`).
+
+## Cuentas, amigos y sincronización
+
+El acceso es obligatorio: sin sesión solo se ve la landing pública. Las cuentas usan Supabase (email y contraseña, Google o GitHub). Con sesión, tus partidas, repertorio, progreso, preferencias y tu doble se sincronizan con tu cuenta, y en **Jugar → Amigos** puedes buscar jugadores, añadirlos y retarlos: el reto abre una partida directa entre los dos navegadores. La seguridad la ponen las reglas de Row Level Security de `supabase/schema.sql`: cada usuario solo puede leer y cambiar lo suyo. Cómo configurarlo: `supabase/README.md`.
 
 ## Asistente
 

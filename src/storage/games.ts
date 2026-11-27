@@ -31,7 +31,7 @@ function run<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) => IDBRe
   return db().then(database => new Promise<T>((resolve, reject) => {
     const tx = database.transaction(STORE, mode);
     const request = work(tx.objectStore(STORE));
-    tx.oncomplete = () => resolve(request ? request.result : undefined as T);
+    tx.oncomplete = () => { if (mode === 'readwrite' && typeof window !== 'undefined') window.dispatchEvent(new Event('godchess:games')); resolve(request ? request.result : undefined as T); };
     tx.onerror = () => reject(tx.error);
     tx.onabort = () => reject(tx.error ?? new Error('Transacción cancelada'));
   }));

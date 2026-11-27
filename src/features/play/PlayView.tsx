@@ -7,6 +7,7 @@ import { MIN_LEVEL, pickBotMove, STOCKFISH_FLOOR } from '../../chess/adaptiveBot
 import { Flap } from '../../ui/Flap';
 import { CloneView } from './CloneView';
 import { LiveView } from './LiveView';
+import { FriendsView } from '../../account/FriendsView';
 import { StageTools } from './StageTools';
 import { XrayKey } from '../../ui/XrayKey';
 import { useStore } from '../../app/store';
@@ -14,7 +15,7 @@ import { ChessgroundBoard } from '../../ui/ChessgroundBoard';
 import { PageHead, SubNav, Toast, useToast } from '../../ui/kit';
 import { sharedEngine, type EngineClient } from '../../engine/client';
 import type { ErrorTag } from '../../training/model';
-import { localPeerConfig, peerUnavailableMessage } from '../../social/peerConfig';
+import { peerConfig, peerUnavailableMessage } from '../../social/peerConfig';
 import { saveGameRecord } from '../../social/gameRecord';
 import { clockExpired, formatClock, tickClock } from '../../social/clocks';
 import { listGames, putGame, recordFromTree } from '../../storage/games';
@@ -29,10 +30,10 @@ export function PlayView() {
   return (
     <div ref={stage} className={`page play play-stage ${prefs.focusMode ? 'focus' : ''}`}>
       <div className="play-head">
-        <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'live', label: 'En vivo' }, { id: 'invite', label: 'Invitar a alguien' }]} />
+        <SubNav label="Jugar" value={playSection} onChange={setPlay} items={[{ id: 'engine', label: 'Contra el motor' }, { id: 'clone', label: 'Contra tu doble' }, { id: 'live', label: 'En vivo' }, { id: 'friends', label: 'Amigos' }, { id: 'invite', label: 'Invitar a alguien' }]} />
         <StageTools stage={stage} />
       </div>
-      {playSection === 'engine' ? <EngineGame /> : playSection === 'clone' ? <CloneView /> : playSection === 'live' ? <LiveView /> : <InviteGame />}
+      {playSection === 'engine' ? <EngineGame /> : playSection === 'clone' ? <CloneView /> : playSection === 'live' ? <LiveView /> : playSection === 'friends' ? <FriendsView /> : <InviteGame />}
     </div>
   );
 }
@@ -176,18 +177,29 @@ function InviteGame() {
     });
     conn.on('close', () => { record('aborted', true); setConnected(false); setStatus('La otra persona se desconectó'); });
   };
+  const match = useStore(st => st.match);
+  const startMatch = useStore(st => st.startMatch);
+  const handled = useRef<string | null>(null);
+  useEffect(() => {
+    if (!match || handled.current === match.challengeId) return;
+    handled.current = match.challengeId;
+    if (match.role === 'host') createInvite();
+    else if (match.code) { setRemoteId(match.code); join(match.code); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match]);
+  useEffect(() => () => startMatch(null), [startMatch]);
   const createInvite = () => {
-    const instance = new Peer({ ...localPeerConfig }); peer.current = instance; setRole('w'); setStatus('Creando invitación…');
-    instance.on('open', id => { setPeerId(id); setStatus('Comparte el código: tú juegas con blancas'); });
+    const instance = new Peer(peerConfig()); peer.current = instance; setRole('w'); setStatus('Creando invitación…');
+    instance.on('open', id => { setPeerId(id); setStatus(match ? `Esperando a ${match.opponent}…` : 'Comparte el código: tú juegas con blancas'); match?.onCode?.(id); });
     instance.on('connection', conn => attach(conn, 'w'));
     instance.on('error', error => setStatus(peerUnavailableMessage(error)));
   };
-  const join = () => {
-    if (!remoteId.trim()) return;
-    const instance = peer.current ?? new Peer({ ...localPeerConfig }); peer.current = instance;
-    instance.on('open', () => attach(instance.connect(remoteId.trim()), 'b'));
+  const join = (code = remoteId) => {
+    if (!code.trim()) return;
+    const instance = peer.current ?? new Peer(peerConfig()); peer.current = instance;
+    instance.on('open', () => attach(instance.connect(code.trim()), 'b'));
     instance.on('error', error => setStatus(peerUnavailableMessage(error)));
-    setStatus('Conectando al PeerServer local…');
+    setStatus('Conectando…');
   };
   const drop = (from: string, to: string, promotion?: string) => {
     if (!role || game.current.turn() !== role) return;
@@ -207,12 +219,12 @@ function InviteGame() {
         <div className="clock-row"><span className={game.current.turn() === 'w' ? 'clock on' : 'clock'}>Blancas <Flap value={formatClock(clock.w)} tone={game.current.turn() === 'w' ? 'warn' : undefined} /></span></div>
       </div>
       <div className="side-panel">
-        <PageHead title="Jugar con otra persona" lede="Sin cuentas. El PeerServer local (localhost:9000, se arranca con npm run server) solo presenta los dos navegadores; la partida viaja directa entre ellos." />
+        <PageHead title="Jugar con otra persona" lede="Crea un código, compártelo y tu amigo se une con él. Un servidor de señalización solo presenta a los dos navegadores; la partida viaja directa entre vosotros." />
         <p className={`status-line ${connected ? 'good' : ''}`} role="status">{status}</p>
         <button className="primary" onClick={createInvite} disabled={Boolean(peerId)}>Crear código de invitación</button>
         {peerId && <div className="code-box"><code>{peerId}</code><button className="icon" aria-label="Copiar código" onClick={() => navigator.clipboard?.writeText(peerId).then(() => toast.show('Código copiado.'))}><Copy size={16} /></button></div>}
         <label className="field">Unirse con un código (juegas con negras)<input value={remoteId} onChange={event => setRemoteId(event.target.value)} placeholder="Pega el código del anfitrión" /></label>
-        <div className="row"><button className="secondary" onClick={join} disabled={!remoteId.trim()}>Conectar</button><button className="ghost" onClick={reset}><RotateCcw size={16} /> Reiniciar posición</button></div>
+        <div className="row"><button className="secondary" onClick={() => join()} disabled={!remoteId.trim()}>Conectar</button><button className="ghost" onClick={reset}><RotateCcw size={16} /> Reiniciar posición</button></div>
       </div>
       <Toast message={toast.message} />
     </section>

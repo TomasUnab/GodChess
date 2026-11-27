@@ -11,7 +11,9 @@ import { addLine, loadRepertoire, removeEntry, review, saveRepertoire, type Repe
 
 export type Area = 'home' | 'analysis' | 'games' | 'repertoire' | 'train' | 'play';
 export type TrainSection = 'path' | 'lesson' | 'diagnosis' | 'puzzles' | 'blitz' | 'mistakes' | 'guess' | 'vision' | 'mates' | 'journal';
-export type PlaySection = 'engine' | 'clone' | 'live' | 'invite';
+export type PlaySection = 'engine' | 'clone' | 'live' | 'invite' | 'friends';
+/** A challenge handed to the invite game: host a code (challenger) or join one (opponent). */
+export type PendingMatch = { role: 'host' | 'join'; code?: string; challengeId: string; opponent: string; onCode?: (code: string) => void };
 export type RepertoireSection = 'mine' | 'practice' | 'tree' | 'masters' | 'explorer';
 export type Theme = 'day' | 'night';
 type Scan = { checks: boolean; captures: boolean; threats: boolean };
@@ -36,7 +38,8 @@ function loadAnalysis(): { tree: GameTree; current: string; gameId?: number } {
 }
 
 type Store = {
-  area: Area; train: TrainSection; playSection: PlaySection; repertoireSection: RepertoireSection; lessonId: string;
+  area: Area; train: TrainSection; playSection: PlaySection;
+  match: PendingMatch | null; startMatch: (match: PendingMatch | null) => void; repertoireSection: RepertoireSection; lessonId: string;
   go: (area: Area) => void; setTrain: (section: TrainSection) => void; setPlay: (section: PlaySection) => void; setRepertoireSection: (section: RepertoireSection) => void; openLesson: (id: string) => void;
   prefs: Prefs; setPrefs: (patch: Partial<Prefs>) => void;
 
@@ -83,7 +86,8 @@ export const useStore = create<Store>((set, get) => {
   const withTraining = (update: (state: TrainingState) => TrainingState) => set(s => { const training = update(s.training); saveTraining(training); return { training }; });
   const setTree = (tree: GameTree, current: string) => { persistTree(tree, get().gameId); set({ tree, current }); };
   return {
-    area: 'home', train: 'path', playSection: 'engine', repertoireSection: 'mine', lessonId: 'board',
+    area: 'home', train: 'path', playSection: 'engine',
+    match: null, startMatch: match => set({ match, ...(match ? { playSection: 'invite' as PlaySection, area: 'play' as Area } : {}) }), repertoireSection: 'mine', lessonId: 'board',
     go: area => set({ area }),
     setTrain: train => set({ train, area: 'train' }),
     setPlay: playSection => set({ playSection, area: 'play' }),

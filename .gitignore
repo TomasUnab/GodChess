@@ -12,6 +12,7 @@ data/chess-openings/
 # Entorno y sistema
 .env
 .env.*
+!.env.example
 *.log
 .DS_Store
 
